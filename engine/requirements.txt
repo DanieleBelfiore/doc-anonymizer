@@ -1,0 +1,7 @@
+presidio-analyzer
+presidio-anonymizer
+python-docx
+spacy
+pymupdf
+pytesseract
+pyinstaller
