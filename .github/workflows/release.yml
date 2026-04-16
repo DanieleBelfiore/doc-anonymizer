@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # Trigger build only when a version tag is pushed (e.g., v1.0.0)
+      - "v*" # Trigger build only when a version tag is pushed (e.g., v1.0.0)
 
 permissions:
   contents: write
@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
 
     steps:
       - name: Checkout repository
@@ -23,30 +23,32 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'npm'
+          node-version: 25
+          cache: "npm"
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.14"
+- name: Install Python dependencies
+  shell: bash
+  run: |
+    python -m pip install --upgrade pip
+    pip install -r engine/requirements.txt
+    python -m spacy download it_core_news_lg
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r engine/requirements.txt
-          python -m spacy download it_core_news_lg
+- name: Build Python Sidecar
+  shell: bash
+  run: |
+    mkdir -p resources/bin
+    pip install pyinstaller
+    # Build a standalone executable including spaCy and the Large model
+    pyinstaller --noconfirm --onefile --console --name "engine-bin" \
+      --collect-all spacy \
+      --collect-all it_core_news_lg \
+      --distpath resources/bin \
+      engine/processor.py
 
-      - name: Build Python Sidecar
-        run: |
-          mkdir -p resources/bin
-          pip install pyinstaller
-          # Build a standalone executable including spaCy and the Large model
-          pyinstaller --noconfirm --onefile --console --name "engine-bin" \
-            --collect-all spacy \
-            --collect-all it_core_news_lg \
-            --distpath resources/bin \
-            engine/processor.py
 
       - name: Install Node dependencies
         run: npm install
