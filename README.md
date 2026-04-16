@@ -6,83 +6,71 @@ Built with privacy in mind, all processing happens **100% offline** on your mach
 
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![Tech](https://img.shields.io/badge/tech-React%20%7C%20Electron%20%7C%20Python-green)
+[![Latest Release](https://img.shields.io/github/v/release/DanieleBelfiore/doc-anonymizer?label=Latest%20Version)](https://github.com/DanieleBelfiore/doc-anonymizer/releases)
+
+## 📥 Quick Download (For End Users)
+
+You **do not need to be a developer** to use this application. You can download the ready-to-use installer for your specific operating system:
+
+1.  Go to the [**Releases Page**](https://github.com/DanieleBelfiore/doc-anonymizer/releases).
+2.  Download the package for your system:
+    -   🪟 **Windows**: `.exe` installer (standard setup).
+    -   🍎 **macOS**: `.dmg` package (drag to Applications).
+    -   🐧 **Linux**: `.AppImage` (portable executable, runs on most distributions).
+3.  Install and run. **No other setup (Node or Python) is required.**
+
+---
 
 ## ✨ Key Features
 
 - **Multi-Format Support**: Anonymize `.pdf` (both native and scanned), `.docx`, and `.txt` files.
-- **Deep OCR Integration**: Uses Tesseract OCR to "read" and redact scanned PDFs and images of documents.
-- **Linguistic Intelligence**: Powered by `spaCy` (Large Italian Model) and `Microsoft Presidio`, using Part-of-Speech analysis rather than simple keyword lists to distinguish between personal names and technical terms.
+- **Deep OCR Integration**: Uses Tesseract OCR to "read" and redact scanned PDFs.
+- **Linguistic Intelligence**: Powered by `spaCy` (Large Italian Model), using grammatical analysis to protect PII without destroying technical data.
 - **Dual Processing Modes**:
-  - 🟢 **Default**: Surgical redaction. Focuses only on Names, Fiscal Codes (CF/PIVA), Street Addresses, Phone Numbers, and Emails. It is designed to ignore clinical terms, medical tests, and document labels.
-  - 🔴 **Aggressive**: Stricter detection. Redacts anything that has even a slight probability of being personal data.
-- **Modern UI**: A sleek, "Glassmorphic" interface with real-time progress tracking.
-- **Cross-Platform**: Runs on Windows, macOS, and Linux.
+  - 🟢 **Default**: Surgical redaction. Focuses only on Names, Fiscal Codes (CF/PIVA), Street Addresses, Phone Numbers, and Emails.
+  - 🔴 **Aggressive**: Stricter detection for maximum security.
+- **100% Privacy**: No cloud APIs, no internet required. Your documents stay on your hard drive.
+
+---
 
 ## 🏗️ Architecture
 
-The app uses a hybrid architecture to combine UI flexibility with heavy-duty NLP processing:
+The app uses a hybrid architecture to ensure cross-platform compatibility:
+1.  **Frontend**: React 19 + Tailwind CSS 4.
+2.  **Shell**: Electron 41.
+3.  **Engine**: A Python 3 sidecar process for high-performance NLP.
 
-1.  **Frontend**: React 19 + Tailwind CSS 4 for a responsive, modern interface.
-2.  **Shell**: Electron 35 managing native OS features (File Explorer integration, Windowing).
-3.  **Engine**: A Python 3 sidecar process running a dedicated Virtual Environment for high-performance NLP and PDF manipulation.
+---
 
-## 🚀 Getting Started
+## 👩‍💻 For Developers (Building from source)
+
+If you want to contribute or build the app yourself, follow these steps:
 
 ### Prerequisites
-
-- **Node.js** (v18 or higher)
-- **Python** (v3.9 or higher)
+- **Node.js** (v25+)
+- **Python** (v3.14+)
 - **Tesseract OCR**: Required for scanned document support.
-  - *macOS*: `brew install tesseract tesseract-lang`
-  - *Windows*: Download and install from [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki).
-  - *Linux*: `sudo apt install tesseract-ocr`
 
-### Installation
-
-1.  **Clone the repository**:
+### Setup
+1.  **Clone & Install Node deps**:
     ```bash
-    git clone https://github.com/YourUsername/doc-anonymizer.git
+    git clone https://github.com/DanieleBelfiore/doc-anonymizer.git
     cd doc-anonymizer
+    npm install
     ```
-
-2.  **Setup the Python Engine**:
+2.  **Setup Python Engine**:
     ```bash
     cd engine
     python3 -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    source venv/bin/activate
     pip install -r requirements.txt
     python -m spacy download it_core_news_lg
     cd ..
     ```
-
-3.  **Install Node dependencies**:
+3.  **Run Development Mode**:
     ```bash
-    npm install
+    npm run dev
     ```
-
-### Development
-
-To start the application in development mode:
-```bash
-npm run dev
-```
-
-## 🛠️ Usage
-
-1.  **Source Folder**: Select the folder containing the documents you want to clean.
-2.  **Destination Folder**: Select where you want to save the anonymized versions.
-3.  **Choose Mode**: 
-    - Use **Default** for medical reports or technical invoices to keep the content readable.
-    - Use **Aggressive** for maximum security.
-4.  **Start Batch**: Click the button and watch the real-time progress bar.
-
-## 🔒 Privacy
-
-This application is **Offline-Only**. 
-- It does not require an internet connection.
-- It does not use any Cloud AI APIs.
-- Your documents stay on your hard drive. 
-- The redaction process physically removes data from PDF layers (it doesn't just put a black box on top).
 
 ## 📄 License
 
