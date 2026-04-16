@@ -18,43 +18,43 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6.3.0
         with:
           node-version: 25
           cache: "npm"
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: "3.14"
-- name: Install Python dependencies
-  shell: bash
-  run: |
-    python -m pip install --upgrade pip
-    pip install -r engine/requirements.txt
-    python -m spacy download it_core_news_lg
 
-- name: Build Python Sidecar
-  shell: bash
-  run: |
-    mkdir -p resources/bin
-    pip install pyinstaller
-    # Build a standalone executable including spaCy and the Large model
-    pyinstaller --noconfirm --onefile --console --name "engine-bin" \
-      --collect-all spacy \
-      --collect-all it_core_news_lg \
-      --distpath resources/bin \
-      engine/processor.py
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r engine/requirements.txt
+          python -m spacy download it_core_news_lg
 
+      - name: Build Python Sidecar
+        shell: bash
+        run: |
+          mkdir -p resources/bin
+          pip install pyinstaller
+          # Build a standalone executable including spaCy and the Large model
+          pyinstaller --noconfirm --onefile --console --name "engine-bin" \
+            --collect-all spacy \
+            --collect-all it_core_news_lg \
+            --distpath resources/bin \
+            engine/processor.py
 
       - name: Install Node dependencies
         run: npm install
 
       - name: Build and Publish Electron App
-        uses: samuelmeuli/action-electron-builder@v1
+        uses: samuelmeuli/action-electron-builder@v1.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # The action will automatically detect the tag and create the release
