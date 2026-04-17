@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { 
-  Shield, 
-  FolderInput, 
-  FolderOutput, 
-  Play, 
-  CheckCircle2, 
+import
+{
+  Shield,
+  FolderInput,
+  FolderOutput,
+  Play,
+  CheckCircle2,
   Loader2,
   FileText,
   ExternalLink
 } from 'lucide-react';
 
-function App() {
+function App()
+{
   const [inputPath, setInputPath] = useState('');
   const [outputPath, setOutputPath] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -21,62 +23,76 @@ function App() {
   const [version, setVersion] = useState('');
   const [newVersion, setNewVersion] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  React.useEffect(() =>
+  {
     // Listen for progress
-    window.electronAPI.onProgress((data: any) => {
-      if (data.status === 'progress') {
+    window.electronAPI.onProgress((data: any) =>
+    {
+      if (data.status === 'progress')
+      {
         setProgress(data.percentage);
         setCurrentFile(data.file);
       }
     });
 
     // Check for version and updates
-    const initApp = async () => {
+    const initApp = async () =>
+    {
       const v = await window.electronAPI.getAppVersion();
       setVersion(v);
-      
-      try {
+
+      try
+      {
         // Fetch latest release from GitHub
         const response = await fetch('https://api.github.com/repos/DanieleBelfiore/doc-anonymizer/releases/latest');
-        
-        if (response.ok) {
+
+        if (response.ok)
+        {
           const data = await response.json();
-          if (data && data.tag_name) {
+          if (data && data.tag_name)
+          {
             const latestTag = data.tag_name.replace('v', '');
-            if (latestTag !== v) {
+            if (latestTag !== v)
+            {
               setNewVersion(latestTag);
             }
           }
         }
-      } catch (e) {
+      } catch (e)
+      {
         console.log('Update check skipped: No releases found or network error');
       }
     };
-    
+
     initApp();
   }, []);
 
-  const handleSelectInput = async () => {
+  const handleSelectInput = async () =>
+  {
     const path = await window.electronAPI.selectFolder();
     if (path) setInputPath(path);
   };
 
-  const handleSelectOutput = async () => {
+  const handleSelectOutput = async () =>
+  {
     const path = await window.electronAPI.selectFolder();
     if (path) setOutputPath(path);
   };
 
-  const handleStart = async () => {
+  const handleStart = async () =>
+  {
     if (!inputPath || !outputPath) return;
     setIsProcessing(true);
     setStatus('processing');
     setProgress(0);
-    
-    try {
+
+    try
+    {
       await window.electronAPI.startAnonymization({ inputPath, outputPath, mode });
       setIsProcessing(false);
       setStatus('done');
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Anonymization failed:', error);
       setIsProcessing(false);
       setStatus('idle');
@@ -84,30 +100,31 @@ function App() {
     }
   };
 
-  const reset = () => {
+  const reset = () =>
+  {
     setStatus('idle');
     setProgress(0);
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 font-sans">
+    <div className="flex min-h-screen w-full bg-slate-50 font-sans">
       {/* Sidebar */}
-      <div className="w-16 h-full flex flex-col items-center py-6 bg-white border-r border-slate-100">
+      <div className="w-16 flex flex-col items-center py-6 bg-white border-r border-slate-100 shrink-0">
         <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-200">
           <Shield size={24} />
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col p-8 overflow-hidden">
-        <header className="mb-8">
+      <main className="flex-1 flex flex-col p-8 overflow-y-auto">
+        <header className="mb-6 shrink-0">
           <h1 className="text-3xl font-bold text-slate-800">Doc Anonymizer</h1>
-          <p className="text-slate-500 mt-1">Protect your sensitive data locally.</p>
+          <p className="text-slate-500 mt-1 text-sm">Protect your sensitive data locally.</p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 shrink-0">
           {/* Input Folder */}
-          <div 
+          <div
             onClick={handleSelectInput}
             className="glass p-6 rounded-2xl flex flex-col gap-4 cursor-pointer hover:bg-white/80 transition-colors group"
           >
@@ -116,14 +133,14 @@ function App() {
               <h2 className="font-semibold text-lg">Source Folder</h2>
             </div>
             <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Select input folder..." 
+              <input
+                type="text"
+                placeholder="Select input folder..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none group-hover:border-primary-500 transition-all cursor-pointer text-sm"
                 value={inputPath}
                 readOnly
               />
-              <button 
+              <button
                 className="absolute right-2 top-1.5 btn-secondary !py-1.5 text-xs pointer-events-none"
               >
                 Browse
@@ -132,7 +149,7 @@ function App() {
           </div>
 
           {/* Output Folder */}
-          <div 
+          <div
             onClick={handleSelectOutput}
             className="glass p-6 rounded-2xl flex flex-col gap-4 cursor-pointer hover:bg-white/80 transition-colors group"
           >
@@ -141,14 +158,14 @@ function App() {
               <h2 className="font-semibold text-lg">Destination Folder</h2>
             </div>
             <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Select output folder..." 
+              <input
+                type="text"
+                placeholder="Select output folder..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none group-hover:border-primary-500 transition-all cursor-pointer text-sm"
                 value={outputPath}
                 readOnly
               />
-              <button 
+              <button
                 className="absolute right-2 top-1.5 btn-secondary !py-1.5 text-xs pointer-events-none"
               >
                 Browse
@@ -169,13 +186,13 @@ function App() {
                 Configure your folder paths to start processing your documents securely.
               </p>
               <div className="flex bg-slate-100 p-1 rounded-xl mb-8">
-                <button 
+                <button
                   onClick={() => setMode('default')}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'default' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   Default
                 </button>
-                <button 
+                <button
                   onClick={() => setMode('aggressive')}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'aggressive' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
                 >
@@ -183,14 +200,14 @@ function App() {
                 </button>
               </div>
 
-              <button 
+              <button
                 onClick={handleStart}
                 className="btn-primary flex items-center gap-2 py-4 px-10 rounded-2xl text-lg group"
                 disabled={isProcessing || !inputPath || !outputPath}
               >
                 Start Batch <Play size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>
-              
+
               <div className="mt-6 flex items-center gap-4 text-[10px] text-slate-400 uppercase tracking-widest font-bold">
                 <span>PDF</span>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
@@ -214,7 +231,7 @@ function App() {
                 <span className="font-bold text-primary-600">{progress}%</span>
               </div>
               <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-primary-600 transition-all duration-300 ease-out shadow-lg shadow-primary-200"
                   style={{ width: `${progress}%` }}
                 ></div>
@@ -236,8 +253,8 @@ function App() {
               </p>
               <div className="flex gap-4 justify-center">
                 <button onClick={reset} className="btn-secondary">Go Back</button>
-                <button 
-                  onClick={() => window.electronAPI.openFolder(outputPath)} 
+                <button
+                  onClick={() => window.electronAPI.openFolder(outputPath)}
                   className="btn-primary"
                 >
                   Open Folder
@@ -250,7 +267,7 @@ function App() {
         <footer className="mt-8 flex justify-between items-center text-[10px] text-slate-400 px-4">
           <div>Version {version}</div>
           {newVersion && (
-            <button 
+            <button
               onClick={() => window.electronAPI.openExternal('https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest')}
               className="flex items-center gap-1 text-primary-600 font-bold hover:underline"
             >
