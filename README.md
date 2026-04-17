@@ -10,6 +10,9 @@ Built with privacy in mind, all processing happens **100% offline** on your mach
 
 ## 📥 Quick Download (For End Users)
 
+> [!IMPORTANT]
+> **Current Language Support**: This application is currently optimized and configured exclusively for **Italian** documents. Supported PII detection (Names, Addresses, Fiscal Codes) is tuned for the Italian language and legal formats.
+
 You **do not need to be a developer** to use this application. You can download the ready-to-use installer for your specific operating system:
 
 1.  Go to the [**Releases Page**](https://github.com/DanieleBelfiore/doc-anonymizer/releases).

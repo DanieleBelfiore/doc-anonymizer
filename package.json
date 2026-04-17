@@ -51,7 +51,13 @@
         "nsis"
       ],
       "icon": "public/icon.png",
-      "artifactName": "${productName}-Setup-${version}.${ext}"
+      "artifactName": "${productName}-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "differentialPackage": false
     },
     "linux": {
       "target": [
@@ -59,10 +65,13 @@
       ],
       "category": "Utility",
       "artifactName": "${productName}-${version}.${ext}"
+    },
+    "dmg": {
+      "writeUpdateInfo": false
     }
   },
   "keywords": [],
-  "author": "",
+  "author": "Daniele Belfiore",
   "license": "ISC",
   "dependencies": {
     "clsx": "^2.1.1",

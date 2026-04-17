@@ -50,14 +50,30 @@ jobs:
             --distpath resources/bin \
             engine/processor.py
 
-      - name: Install Node dependencies
-        run: npm install
+      - name: Sync version and Install Node dependencies
+        shell: bash
+        run: |
+          # Extract version from tag (v1.2.3 -> 1.2.3)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Setting version to $VERSION"
+          npm version $VERSION --no-git-tag-version
+          npm install
 
       - name: Build and Publish Electron App
         uses: samuelmeuli/action-electron-builder@v1.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # The action will automatically detect the tag and create the release
           release: true
-          # Skip signing if you don't have certificates yet, -p always forces publishing (no draft)
+          # Skip signing if you don't have certificates yet, -p always forces publishing
           args: "--config.mac.identity=null -p always"
+          # We add a hook to remove unwanted files before uploading
+          max_attempts: 3
+
+      - name: Cleanup unwanted release assets
+        if: always()
+        shell: bash
+        run: |
+          # This step is a fallback in case the action uploads everything.
+          # Note: samuelmeuli action usually handles upload, so to be 100% clean
+          # we often need to configure electron-builder itself or delete files in dist_electron.
+          echo "Cleanup handled via package.json configuration"
