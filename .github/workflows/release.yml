@@ -47,6 +47,8 @@ jobs:
           pyinstaller --noconfirm --onefile --console --name "engine-bin" \
             --collect-all spacy \
             --collect-all it_core_news_lg \
+            --collect-all presidio_analyzer \
+            --collect-all presidio_anonymizer \
             --distpath resources/bin \
             engine/processor.py
 
