@@ -1,5 +1,7 @@
 # 🛡️ Doc Anonymizer
 
+![image](image.png)
+
 **Doc Anonymizer** is a professional, local-first desktop application designed to automatically redact sensitive information from documents while preserving their structure and clinical/technical utility. 
 
 Built with privacy in mind, all processing happens **100% offline** on your machine. No data ever leaves your computer.
