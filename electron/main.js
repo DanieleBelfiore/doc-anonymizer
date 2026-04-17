@@ -9,7 +9,8 @@ let mainWindow = null;
 
 function createWindow() {
   console.log('Creating window...');
-  const iconPath = path.join(__dirname, '../public/icon.png');
+  const appPath = app.getAppPath();
+  const iconPath = path.join(appPath, 'public/icon.png');
   
   mainWindow = new BrowserWindow({
     width: 1000,
@@ -17,12 +18,25 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     resizable: true,
-    icon: iconPath, // Icon for Windows/Linux
+    show: false,
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: true,
     },
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
+
+  // Enable DevTools shortcut in production for debugging
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if ((input.meta && input.alt && input.key.toLowerCase() === 'i') || (input.control && input.shift && input.key.toLowerCase() === 'i')) {
+      mainWindow.webContents.openDevTools();
+    }
   });
 
   // Set dock icon for macOS
@@ -36,18 +50,45 @@ function createWindow() {
     mainWindow.loadURL(url).catch(err => {
       console.error('Failed to load URL:', err);
     });
-  } else {
-    const filePath = path.join(__dirname, '../dist/index.html');
-    console.log(`Loading file: ${filePath}`);
-    mainWindow.loadFile(filePath);
-  }
-  
-  /* 
-  // Open devtools in development
-  if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.webContents.openDevTools();
+  } else {
+    // In production, load the local index.html from the dist folder
+    // We try multiple ways to find the correct path
+    const possiblePaths = [
+      path.join(__dirname, '..', 'dist', 'index.html'),
+      path.join(app.getAppPath(), 'dist', 'index.html'),
+      path.join(process.resourcesPath, 'app', 'dist', 'index.html'),
+    ];
+
+    let loaded = false;
+    for (const indexPath of possiblePaths) {
+      if (require('fs').existsSync(indexPath)) {
+        console.log(`Found index.html at: ${indexPath}`);
+        mainWindow.loadFile(indexPath).catch(err => {
+          console.error(`Failed to load file at ${indexPath}:`, err);
+        });
+        loaded = true;
+        break;
+      } else {
+        console.log(`Checked path (not found): ${indexPath}`);
+      }
+    }
+
+    if (!loaded) {
+      console.error('CRITICAL: dist/index.html not found in any of the possible paths.');
+      // Diagnostic: list files in the app directory to see what's actually there
+      try {
+        const fs = require('fs');
+        const root = app.getAppPath();
+        console.log(`Contents of app root (${root}):`, fs.readdirSync(root));
+        if (fs.existsSync(path.join(root, 'dist'))) {
+          console.log(`Contents of dist folder:`, fs.readdirSync(path.join(root, 'dist')));
+        }
+      } catch (e) {
+        console.error('Failed to run diagnostics:', e);
+      }
+    }
   }
-  */
 }
 
 app.whenReady().then(() => {

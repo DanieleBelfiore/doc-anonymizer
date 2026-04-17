@@ -20,8 +20,8 @@
       "output": "dist_electron"
     },
     "files": [
-      "dist/**/*",
-      "electron/**/*",
+      "dist",
+      "electron",
       "package.json"
     ],
     "extraResources": [

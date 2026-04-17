@@ -8,6 +8,7 @@ yarn-error.log*
 # Build outputs
 dist/
 dist-ssr/
+dist-electron/
 *.local
 out/
 
