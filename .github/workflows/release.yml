@@ -60,14 +60,19 @@ jobs:
           npm install
 
       - name: Build and Publish Electron App
-        uses: samuelmeuli/action-electron-builder@v1.6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          release: true
-          # Skip signing if you don't have certificates yet, -p always forces publishing
-          args: "--config.mac.identity=null -p always"
-          # We add a hook to remove unwanted files before uploading
-          max_attempts: 3
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 1. Build the app without publishing yet
+          npx electron-builder --config.mac.identity=null
+          
+          # 2. Delete unwanted files from the output directory
+          # On Windows/Linux/Mac the output is usually in dist_electron
+          find dist_electron -maxdepth 1 -type f \( -name "*.yml" -o -name "*.blockmap" \) -delete || true
+          
+          # 3. Publish the remaining installers
+          npx electron-builder --config.mac.identity=null -p always
 
       - name: Cleanup unwanted release assets
         if: always()

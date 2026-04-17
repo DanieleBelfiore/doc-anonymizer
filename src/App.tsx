@@ -6,7 +6,8 @@ import {
   Play, 
   CheckCircle2, 
   Loader2,
-  FileText
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 
 function App() {
@@ -17,14 +18,42 @@ function App() {
   const [currentFile, setCurrentFile] = useState('');
   const [status, setStatus] = useState<'idle' | 'processing' | 'done'>('idle');
   const [mode, setMode] = useState<'default' | 'aggressive'>('default');
+  const [version, setVersion] = useState('');
+  const [newVersion, setNewVersion] = useState<string | null>(null);
 
   React.useEffect(() => {
+    // Listen for progress
     window.electronAPI.onProgress((data: any) => {
       if (data.status === 'progress') {
         setProgress(data.percentage);
         setCurrentFile(data.file);
       }
     });
+
+    // Check for version and updates
+    const initApp = async () => {
+      const v = await window.electronAPI.getAppVersion();
+      setVersion(v);
+      
+      try {
+        // Fetch latest release from GitHub
+        const response = await fetch('https://api.github.com/repos/DanieleBelfiore/doc-anonymizer/releases/latest');
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.tag_name) {
+            const latestTag = data.tag_name.replace('v', '');
+            if (latestTag !== v) {
+              setNewVersion(latestTag);
+            }
+          }
+        }
+      } catch (e) {
+        console.log('Update check skipped: No releases found or network error');
+      }
+    };
+    
+    initApp();
   }, []);
 
   const handleSelectInput = async () => {
@@ -217,6 +246,18 @@ function App() {
             </div>
           )}
         </div>
+
+        <footer className="mt-8 flex justify-between items-center text-[10px] text-slate-400 px-4">
+          <div>Version {version}</div>
+          {newVersion && (
+            <button 
+              onClick={() => window.electronAPI.openExternal('https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest')}
+              className="flex items-center gap-1 text-primary-600 font-bold hover:underline"
+            >
+              <ExternalLink size={10} /> New version available: v{newVersion}
+            </button>
+          )}
+        </footer>
       </main>
     </div>
   );

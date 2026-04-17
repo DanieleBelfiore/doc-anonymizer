@@ -146,6 +146,14 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
   });
 });
 
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('open-external', async (event, url) => {
+  await shell.openExternal(url);
+});
+
 ipcMain.handle('open-folder', async (event, folderPath) => {
   if (folderPath) {
     shell.openPath(folderPath);
