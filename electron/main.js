@@ -11,7 +11,7 @@ function createWindow() {
   console.log('Creating window...');
   const appPath = app.getAppPath();
   const iconPath = path.join(appPath, 'public/icon.png');
-  
+
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -50,7 +50,6 @@ function createWindow() {
     mainWindow.loadURL(url).catch(err => {
       console.error('Failed to load URL:', err);
     });
-    mainWindow.webContents.openDevTools();
   } else {
     // In production, load the local index.html from the dist folder
     // We try multiple ways to find the correct path
@@ -127,18 +126,18 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
       extraArgs = ['--input', inputPath, '--output', outputPath, '--mode', mode || 'strict'];
     } else {
       // In development, we use the venv python
-      pythonExecutable = process.platform === 'win32' 
+      pythonExecutable = process.platform === 'win32'
         ? path.join(__dirname, '../engine/venv/Scripts/python.exe')
         : path.join(__dirname, '../engine/venv/bin/python');
       extraArgs = ['-m', 'engine.processor', '--input', inputPath, '--output', outputPath, '--mode', mode || 'strict'];
     }
-    
+
     console.log(`Using Python executable: ${pythonExecutable}`);
-    
+
     // Set environment variables for the Python process
     const rootPath = path.join(__dirname, '..');
-    const env = { 
-      ...process.env, 
+    const env = {
+      ...process.env,
       PYTHONPATH: rootPath,
       PYTHONUNBUFFERED: '1',
       LANG: 'en_US.UTF-8',
@@ -151,7 +150,7 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
       const output = data.toString();
       console.log(`Python stdout: ${output}`);
       const lines = output.split('\n');
-      
+
       for (const line of lines) {
         if (!line.trim()) continue;
         try {
