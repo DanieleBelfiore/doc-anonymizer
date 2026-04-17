@@ -205,7 +205,7 @@ function App()
                 className="btn-primary flex items-center gap-2 py-4 px-10 rounded-2xl text-lg group"
                 disabled={isProcessing || !inputPath || !outputPath}
               >
-                Start Batch <Play size={20} className="group-hover:translate-x-1 transition-transform" />
+                Start <Play size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>
 
               <div className="mt-6 flex items-center gap-4 text-[10px] text-slate-400 uppercase tracking-widest font-bold">
