@@ -7,9 +7,16 @@ class ItalianFiscalCodesRecognizer(PatternRecognizer):
     def __init__(self):
         patterns = [
             Pattern(name="CodiceFiscale", regex=r"\b[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]\b", score=1.0),
-            Pattern(name="PartitaIva", regex=r"\b\d{11}\b", score=1.0)
+            # Base score 0.3 stays below the 0.4 threshold for standalone 11-digit numbers.
+            # Presidio boosts to ~0.65 when context keywords appear nearby.
+            Pattern(name="PartitaIva", regex=r"\b\d{11}\b", score=0.3),
         ]
-        super().__init__(supported_entity="FISCAL_ID", patterns=patterns, supported_language="it")
+        super().__init__(
+            supported_entity="FISCAL_ID",
+            patterns=patterns,
+            supported_language="it",
+            context=["partita", "iva", "piva", "p.iva", "fiscale"],
+        )
 
 class DocumentAnonymizer:
     def __init__(self, language="it"):
@@ -97,14 +104,13 @@ class DocumentAnonymizer:
         
         return self._resolve_overlaps(filtered_results)
 
-    def anonymize(self, text, mode="default"):
-        """Simple text replacement anonymization."""
-        filtered_results = self.analyze_and_filter(text, mode=mode)
-        
+    def anonymize(self, text, mode="default", entities=None):
+        """Replace detected PII with placeholders. Pass pre-computed entities to skip NLP analysis."""
+        filtered_results = entities if entities is not None else self.analyze_and_filter(text, mode=mode)
         return self.anonymizer.anonymize(
             text=text,
             analyzer_results=filtered_results,
-            operators=self.operators
+            operators=self.operators,
         ).text
 
     def _resolve_overlaps(self, results):

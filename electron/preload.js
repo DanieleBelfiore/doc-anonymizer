@@ -8,6 +8,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('open-folder', path),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
-  onProgress: (callback) => 
-    ipcRenderer.on('progress-update', (event, value) => callback(value)),
+  onProgress: (callback) => {
+    const handler = (_event, value) => callback(value);
+    ipcRenderer.on('progress-update', handler);
+    return handler;
+  },
+  offProgress: (handler) => ipcRenderer.removeListener('progress-update', handler),
 });

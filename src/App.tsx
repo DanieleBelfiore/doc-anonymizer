@@ -25,14 +25,10 @@ function App()
 
   React.useEffect(() =>
   {
-    // Listen for progress
-    window.electronAPI.onProgress((data: any) =>
+    const progressHandler = window.electronAPI.onProgress((data) =>
     {
-      if (data.status === 'progress')
-      {
-        setProgress(data.percentage);
-        setCurrentFile(data.file);
-      }
+      setProgress(data.percentage);
+      setCurrentFile(data.file);
     });
 
     // Check for version and updates
@@ -65,6 +61,8 @@ function App()
     };
 
     initApp();
+
+    return () => window.electronAPI.offProgress(progressHandler);
   }, []);
 
   const handleSelectInput = async () =>

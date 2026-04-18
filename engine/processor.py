@@ -65,17 +65,12 @@ class FolderProcessor:
                 if not paragraph.text.strip():
                     continue
                 
-                # Get filtered entities for the whole paragraph
                 entities = self.anonymizer.analyze_and_filter(paragraph.text, mode=self.mode)
                 if not entities:
                     continue
 
-                # To preserve formatting, we replace text while keeping runs intact
-                # Strategy: Replace the text of the first run with anonymized string and clear others
-                # NOTE: This is a simple strategy for MVP. A truly robust run-level replacement is complex.
-                # But this is better than resetting the whole paragraph as it might keep paragraph-level styling.
                 original_text = paragraph.text
-                anonymized_text = self.anonymizer.anonymize(original_text, mode=self.mode)
+                anonymized_text = self.anonymizer.anonymize(original_text, entities=entities)
                 
                 if original_text != anonymized_text:
                     # Clear runs and set text to preserve paragraph-level properties
@@ -97,41 +92,40 @@ class FolderProcessor:
 
     def _process_pdf(self, input_file: Path, output_file: Path):
         doc = fitz.open(input_file)
-        for page in doc:
-            text = page.get_text("text")
-            
-            # Use centralized filtering logic
-            filtered = self.anonymizer.analyze_and_filter(text, mode=self.mode)
+        try:
+            for page in doc:
+                text = page.get_text("text")
 
-            # Fallback to OCR if page seems scanned
-            if not filtered and len(text.strip()) < 10:
-                pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
-                img = Image.open(io.BytesIO(pix.tobytes()))
-                ocr_data = pytesseract.image_to_data(img, lang='ita', output_type=pytesseract.Output.DICT)
-                ocr_text = " ".join([w for w in ocr_data['text'] if w.strip()])
-                
-                # Use centralized logic on OCR text too
-                ocr_entities = self.anonymizer.analyze_and_filter(ocr_text, mode=self.mode)
-                
-                for res in ocr_entities:
-                    target_words = ocr_text[res.start:res.end].split()
-                    for target_word in target_words:
-                        for i, word in enumerate(ocr_data['text']):
-                            if target_word in word:
-                                x, y, w, h = ocr_data['left'][i], ocr_data['top'][i], ocr_data['width'][i], ocr_data['height'][i]
-                                rect = fitz.Rect(x/2, y/2, (x+w)/2, (y+h)/2)
-                                page.add_redact_annot(rect, fill=(0, 0, 0))
-            else:
-                # Digital redaction using centralized results
-                for res in filtered:
-                    target_text = text[res.start:res.end]
-                    for inst in page.search_for(target_text):
-                        page.add_redact_annot(inst, fill=(0, 0, 0))
-            
-            page.apply_redactions()
-            
-        doc.save(output_file, garbage=4, deflate=True)
-        doc.close()
+                filtered = self.anonymizer.analyze_and_filter(text, mode=self.mode)
+
+                # Fallback to OCR if page seems scanned
+                if not filtered and len(text.strip()) < 10:
+                    pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+                    img = Image.open(io.BytesIO(pix.tobytes()))
+                    ocr_data = pytesseract.image_to_data(img, lang='ita', output_type=pytesseract.Output.DICT)
+                    ocr_text = " ".join([w for w in ocr_data['text'] if w.strip()])
+
+                    ocr_entities = self.anonymizer.analyze_and_filter(ocr_text, mode=self.mode)
+
+                    for res in ocr_entities:
+                        target_words = ocr_text[res.start:res.end].split()
+                        for target_word in target_words:
+                            for i, word in enumerate(ocr_data['text']):
+                                if target_word in word:
+                                    x, y, w, h = ocr_data['left'][i], ocr_data['top'][i], ocr_data['width'][i], ocr_data['height'][i]
+                                    rect = fitz.Rect(x/2, y/2, (x+w)/2, (y+h)/2)
+                                    page.add_redact_annot(rect, fill=(0, 0, 0))
+                else:
+                    for res in filtered:
+                        target_text = text[res.start:res.end]
+                        for inst in page.search_for(target_text):
+                            page.add_redact_annot(inst, fill=(0, 0, 0))
+
+                page.apply_redactions()
+
+            doc.save(output_file, garbage=4, deflate=True)
+        finally:
+            doc.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Anonymize documents.")
