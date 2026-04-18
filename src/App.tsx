@@ -8,7 +8,9 @@ import
   CheckCircle2,
   Loader2,
   FileText,
-  ExternalLink
+  ExternalLink,
+  AlertTriangle,
+  XCircle
 } from 'lucide-react';
 
 function App()
@@ -22,6 +24,8 @@ function App()
   const [mode, setMode] = useState<'default' | 'aggressive'>('default');
   const [version, setVersion] = useState('');
   const [newVersion, setNewVersion] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<Array<{ file: string; error: string }>>([]);
 
   React.useEffect(() =>
   {
@@ -29,6 +33,11 @@ function App()
     {
       setProgress(data.percentage);
       setCurrentFile(data.file);
+    });
+
+    const warningHandler = window.electronAPI.onWarning((data) =>
+    {
+      setWarnings((prev) => [...prev, { file: data.file, error: data.error }]);
     });
 
     // Check for version and updates
@@ -47,11 +56,16 @@ function App()
           const data = await response.json();
           if (data && data.tag_name)
           {
-            const latestTag = data.tag_name.replace('v', '');
-            if (latestTag !== v)
-            {
-              setNewVersion(latestTag);
+            const latestTag = data.tag_name.replace(/^v/, '');
+            const a = latestTag.split('.').map(Number);
+            const b = v.split('.').map(Number);
+            let isNewer = false;
+            for (let i = 0; i < Math.max(a.length, b.length); i++) {
+              const diff = (a[i] ?? 0) - (b[i] ?? 0);
+              if (diff > 0) { isNewer = true; break; }
+              if (diff < 0) break;
             }
+            if (isNewer) setNewVersion(latestTag);
           }
         }
       } catch (e)
@@ -62,7 +76,11 @@ function App()
 
     initApp();
 
-    return () => window.electronAPI.offProgress(progressHandler);
+    return () =>
+    {
+      window.electronAPI.offProgress(progressHandler);
+      window.electronAPI.offWarning(warningHandler);
+    };
   }, []);
 
   const handleSelectInput = async () =>
@@ -80,6 +98,13 @@ function App()
   const handleStart = async () =>
   {
     if (!inputPath || !outputPath) return;
+    if (inputPath === outputPath)
+    {
+      setErrorMessage('Source and destination folders must be different.');
+      return;
+    }
+    setErrorMessage(null);
+    setWarnings([]);
     setIsProcessing(true);
     setStatus('processing');
     setProgress(0);
@@ -91,10 +116,10 @@ function App()
       setStatus('done');
     } catch (error)
     {
-      console.error('Anonymization failed:', error);
+      const msg = error instanceof Error ? error.message : 'An error occurred during processing.';
       setIsProcessing(false);
       setStatus('idle');
-      alert('An error occurred during processing.');
+      setErrorMessage(msg);
     }
   };
 
@@ -102,6 +127,8 @@ function App()
   {
     setStatus('idle');
     setProgress(0);
+    setWarnings([]);
+    setErrorMessage(null);
   };
 
   return (
@@ -172,6 +199,14 @@ function App()
           </div>
         </div>
 
+        {errorMessage && (
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-3 mb-4 text-sm shrink-0">
+            <XCircle size={16} className="shrink-0" />
+            <span>{errorMessage}</span>
+            <button onClick={() => setErrorMessage(null)} className="ml-auto text-red-400 hover:text-red-600">✕</button>
+          </div>
+        )}
+
         {/* Status Area */}
         <div className="flex-1 glass rounded-3xl p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
           {status === 'idle' && (
@@ -241,14 +276,27 @@ function App()
           )}
 
           {status === 'done' && (
-            <div className="animate-in zoom-in duration-300">
+            <div className="animate-in zoom-in duration-300 w-full max-w-md">
               <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-4 mx-auto">
                 <CheckCircle2 size={44} />
               </div>
               <h3 className="text-2xl font-bold text-slate-800 mb-2">Done!</h3>
-              <p className="text-slate-500 max-w-sm mb-8 mx-auto text-sm">
-                All documents have been anonymized in the destination folder.
+              <p className="text-slate-500 max-w-sm mb-6 mx-auto text-sm">
+                All documents have been processed in the destination folder.
               </p>
+              {warnings.length > 0 && (
+                <div className="mb-6 text-left bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                  <div className="flex items-center gap-2 text-amber-700 font-semibold text-sm mb-2">
+                    <AlertTriangle size={14} />
+                    {warnings.length} file{warnings.length > 1 ? 's' : ''} skipped
+                  </div>
+                  <ul className="text-xs text-amber-600 space-y-1">
+                    {warnings.map((w, i) => (
+                      <li key={i} className="truncate"><span className="font-medium">{w.file}</span>: {w.error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="flex gap-4 justify-center">
                 <button onClick={reset} className="btn-secondary">Go Back</button>
                 <button

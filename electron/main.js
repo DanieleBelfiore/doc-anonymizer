@@ -6,9 +6,9 @@ const { spawn } = require('child_process');
 app.setName('Doc Anonymizer');
 
 let mainWindow = null;
+let activePythonProcess = null;
 
 function createWindow() {
-  console.log('Creating window...');
   const appPath = app.getAppPath();
   const iconPath = path.join(appPath, 'public/icon.png');
 
@@ -47,13 +47,10 @@ function createWindow() {
 
   const url = process.env.VITE_DEV_SERVER_URL;
   if (url) {
-    console.log(`Loading URL: ${url}`);
     mainWindow.loadURL(url).catch(err => {
-      console.error('Failed to load URL:', err);
+      if (!app.isPackaged) console.error('Failed to load URL:', err);
     });
   } else {
-    // In production, load the local index.html from the dist folder
-    // We try multiple ways to find the correct path
     const possiblePaths = [
       path.join(__dirname, '..', 'dist', 'index.html'),
       path.join(app.getAppPath(), 'dist', 'index.html'),
@@ -63,30 +60,16 @@ function createWindow() {
     let loaded = false;
     for (const indexPath of possiblePaths) {
       if (require('fs').existsSync(indexPath)) {
-        console.log(`Found index.html at: ${indexPath}`);
         mainWindow.loadFile(indexPath).catch(err => {
-          console.error(`Failed to load file at ${indexPath}:`, err);
+          if (!app.isPackaged) console.error(`Failed to load file at ${indexPath}:`, err);
         });
         loaded = true;
         break;
-      } else {
-        console.log(`Checked path (not found): ${indexPath}`);
       }
     }
 
     if (!loaded) {
-      console.error('CRITICAL: dist/index.html not found in any of the possible paths.');
-      // Diagnostic: list files in the app directory to see what's actually there
-      try {
-        const fs = require('fs');
-        const root = app.getAppPath();
-        console.log(`Contents of app root (${root}):`, fs.readdirSync(root));
-        if (fs.existsSync(path.join(root, 'dist'))) {
-          console.log(`Contents of dist folder:`, fs.readdirSync(path.join(root, 'dist')));
-        }
-      } catch (e) {
-        console.error('Failed to run diagnostics:', e);
-      }
+      console.error('CRITICAL: dist/index.html not found.');
     }
   }
 }
@@ -100,6 +83,10 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  if (activePythonProcess) {
+    activePythonProcess.kill();
+    activePythonProcess = null;
+  }
   if (process.platform !== 'darwin') app.quit();
 });
 
@@ -118,7 +105,8 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
   const safeMode = ALLOWED_MODES.includes(mode) ? mode : 'default';
   const safeInput = path.resolve(inputPath);
   const safeOutput = path.resolve(outputPath);
-  if (!safeInput || !safeOutput) throw new Error('Invalid paths');
+  if (!path.isAbsolute(safeInput) || !path.isAbsolute(safeOutput)) throw new Error('Invalid paths');
+  if (safeInput === safeOutput) throw new Error('Input and output folders must be different');
 
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -148,6 +136,7 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
     };
 
     const pythonProcess = spawn(pythonExecutable, extraArgs, { env });
+    activePythonProcess = pythonProcess;
 
     pythonProcess.stdout.on('data', (data) => {
       const lines = data.toString().split('\n');
@@ -157,6 +146,8 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
           const message = JSON.parse(line);
           if (message.status === 'progress') {
             if (mainWindow) mainWindow.webContents.send('progress-update', message);
+          } else if (message.status === 'warning') {
+            if (mainWindow) mainWindow.webContents.send('warning-update', message);
           } else if (message.status === 'completed') {
             settle(resolve, { success: true });
           } else if (message.status === 'error') {
@@ -177,6 +168,7 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
     });
 
     pythonProcess.on('close', (code) => {
+      activePythonProcess = null;
       if (code === 0) {
         settle(resolve, { success: true });
       } else {
@@ -200,7 +192,7 @@ ipcMain.handle('open-external', async (event, url) => {
 });
 
 ipcMain.handle('open-folder', async (event, folderPath) => {
-  if (!folderPath) return;
+  if (!folderPath || !path.isAbsolute(folderPath)) return;
   const err = await shell.openPath(folderPath);
   if (err) throw new Error(err);
 });

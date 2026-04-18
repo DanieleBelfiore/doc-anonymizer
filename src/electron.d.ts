@@ -6,7 +6,18 @@ export interface ProgressData {
   file: string;
 }
 
+export interface WarnData {
+  status: 'warning';
+  file: string;
+  error: string;
+}
+
+type ProgressCallback = (data: ProgressData) => void;
+type WarnCallback = (data: WarnData) => void;
+
+// Raw ipcRenderer handler types — used only for removeListener calls
 type ProgressHandler = (event: unknown, value: ProgressData) => void;
+type WarnHandler = (event: unknown, value: WarnData) => void;
 
 export interface IElectronAPI {
   selectFolder: () => Promise<string | null>;
@@ -14,8 +25,10 @@ export interface IElectronAPI {
   openFolder: (path: string) => Promise<void>;
   getAppVersion: () => Promise<string>;
   openExternal: (url: string) => Promise<void>;
-  onProgress: (callback: (data: ProgressData) => void) => ProgressHandler;
+  onProgress: (callback: ProgressCallback) => ProgressHandler;
   offProgress: (handler: ProgressHandler) => void;
+  onWarning: (callback: WarnCallback) => WarnHandler;
+  offWarning: (handler: WarnHandler) => void;
 }
 
 

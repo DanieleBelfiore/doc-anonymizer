@@ -10,10 +10,7 @@
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "/*": ["src/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*", "electron/**/*"],
   "exclude": ["node_modules"]

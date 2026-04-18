@@ -19,6 +19,12 @@ class FolderProcessor:
     def process_folder(self, input_path: str, output_path: str):
         input_dir = Path(input_path)
         output_dir = Path(output_path)
+
+        if not input_dir.exists() or not input_dir.is_dir():
+            print(json.dumps({"status": "error", "message": f"Input folder not found: {input_path}"}))
+            sys.stdout.flush()
+            return
+
         output_dir.mkdir(parents=True, exist_ok=True)
 
         files = [f for f in input_dir.iterdir() if f.suffix.lower() in self.supported_extensions]
@@ -51,36 +57,61 @@ class FolderProcessor:
         print(json.dumps({"status": "completed"}))
 
     def _process_txt(self, input_file: Path, output_file: Path):
-        with open(input_file, "r", encoding="utf-8") as f:
+        with open(input_file, "r", encoding="utf-8", errors="replace") as f:
             content = f.read()
         anonymized_content = self.anonymizer.anonymize(content, mode=self.mode)
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(anonymized_content)
 
+    _REPLACEMENT_MAP = {
+        "PERSON": "[NAME]",
+        "PHONE_NUMBER": "[PHONE]",
+        "LOCATION": "[ADDRESS]",
+        "FISCAL_ID": "[FISCAL_ID]",
+        "EMAIL_ADDRESS": "[EMAIL]",
+    }
+
+    def _apply_entities_to_runs(self, paragraph, entities) -> None:
+        """Apply entity redactions run-by-run to preserve inline formatting."""
+        if not paragraph.runs:
+            return
+
+        # Build (start, end, run) for each run using original paragraph text
+        run_spans: list[tuple[int, int, object]] = []
+        pos = 0
+        for run in paragraph.runs:
+            run_spans.append((pos, pos + len(run.text), run))
+            pos += len(run.text)
+
+        # Process right-to-left so earlier positions stay valid
+        for entity in sorted(entities, key=lambda e: e.start, reverse=True):
+            replacement = self._REPLACEMENT_MAP.get(entity.entity_type, "[REDACTED]")
+            ent_start, ent_end = entity.start, entity.end
+            placed = False
+            for r_start, r_end, run in run_spans:
+                if r_end <= ent_start or r_start >= ent_end:
+                    continue
+                local_start = max(ent_start, r_start) - r_start
+                local_end = min(ent_end, r_end) - r_start
+                if not placed:
+                    run.text = run.text[:local_start] + replacement + run.text[local_end:]
+                    placed = True
+                else:
+                    run.text = run.text[:local_start] + run.text[local_end:]
+
     def _process_docx(self, input_file: Path, output_file: Path):
         doc = Document(input_file)
-        
+
         def anonymize_paragraphs(paragraphs):
             for paragraph in paragraphs:
                 if not paragraph.text.strip():
                     continue
-                
+
                 entities = self.anonymizer.analyze_and_filter(paragraph.text, mode=self.mode)
                 if not entities:
                     continue
 
-                original_text = paragraph.text
-                anonymized_text = self.anonymizer.anonymize(original_text, entities=entities)
-                
-                if original_text != anonymized_text:
-                    # Clear runs and set text to preserve paragraph-level properties
-                    p_element = paragraph._p
-                    for run in paragraph.runs:
-                        run.text = ""
-                    if paragraph.runs:
-                        paragraph.runs[0].text = anonymized_text
-                    else:
-                        paragraph.add_run(anonymized_text)
+                self._apply_entities_to_runs(paragraph, entities)
 
         anonymize_paragraphs(doc.paragraphs)
         for table in doc.tables:
@@ -100,7 +131,9 @@ class FolderProcessor:
 
                 # Fallback to OCR if page seems scanned
                 if not filtered and len(text.strip()) < 10:
-                    pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+                    render_matrix = fitz.Matrix(2, 2)
+                    inv_matrix = ~render_matrix
+                    pix = page.get_pixmap(matrix=render_matrix)
                     img = Image.open(io.BytesIO(pix.tobytes()))
                     ocr_data = pytesseract.image_to_data(img, lang='ita', output_type=pytesseract.Output.DICT)
                     ocr_text = " ".join([w for w in ocr_data['text'] if w.strip()])
@@ -113,7 +146,8 @@ class FolderProcessor:
                             for i, word in enumerate(ocr_data['text']):
                                 if target_word in word:
                                     x, y, w, h = ocr_data['left'][i], ocr_data['top'][i], ocr_data['width'][i], ocr_data['height'][i]
-                                    rect = fitz.Rect(x/2, y/2, (x+w)/2, (y+h)/2)
+                                    pixel_rect = fitz.Rect(x, y, x + w, y + h)
+                                    rect = pixel_rect * inv_matrix
                                     page.add_redact_annot(rect, fill=(0, 0, 0))
                 else:
                     for res in filtered:
@@ -140,4 +174,5 @@ if __name__ == "__main__":
         processor.process_folder(args.input, args.output)
     except Exception as e:
         print(json.dumps({"status": "error", "message": str(e)}))
+        sys.stdout.flush()
         sys.exit(1)
