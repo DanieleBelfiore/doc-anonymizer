@@ -31,6 +31,20 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Install Tesseract (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-ita
+
+      - name: Install Tesseract (macOS)
+        if: runner.os == 'macOS'
+        run: brew install tesseract tesseract-lang
+
+      - name: Install Tesseract (Windows)
+        if: runner.os == 'Windows'
+        run: choco install tesseract --yes
+
       - name: Install Python dependencies
         shell: bash
         run: |
@@ -43,12 +57,34 @@ jobs:
         run: |
           mkdir -p resources/bin
           pip install pyinstaller
-          # Build a standalone executable including spaCy and the Large model
+
+          # Locate tesseract binary and tessdata
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            TESS_BIN=$(where tesseract | head -1 | tr '\\' '/')
+            TESS_DATA=$(dirname "$TESS_BIN")/tessdata
+            TESS_BIN_ARG="$TESS_BIN;."
+            TESS_DATA_ARG="$TESS_DATA;tessdata"
+          else
+            TESS_BIN=$(which tesseract)
+            # Search common tessdata locations
+            for d in /usr/share/tesseract-ocr/5/tessdata /usr/share/tesseract-ocr/4.00/tessdata \
+                      /usr/local/share/tessdata /opt/homebrew/share/tessdata; do
+              [ -d "$d" ] && { TESS_DATA="$d"; break; }
+            done
+            TESS_BIN_ARG="$TESS_BIN:."
+            TESS_DATA_ARG="$TESS_DATA:tessdata"
+          fi
+
+          echo "Tesseract binary: $TESS_BIN"
+          echo "Tessdata dir: $TESS_DATA"
+
           pyinstaller --noconfirm --onefile --console --name "engine-bin" \
             --collect-all spacy \
             --collect-all it_core_news_lg \
             --collect-all presidio_analyzer \
             --collect-all presidio_anonymizer \
+            --add-binary "$TESS_BIN_ARG" \
+            --add-data "$TESS_DATA_ARG" \
             --distpath resources/bin \
             engine/processor.py
 

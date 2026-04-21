@@ -10,6 +10,13 @@ from PIL import Image
 import io
 from engine.anonymizer import DocumentAnonymizer
 
+# When running as a PyInstaller bundle, point pytesseract at the bundled binary
+if getattr(sys, 'frozen', False):
+    _base = sys._MEIPASS  # type: ignore[attr-defined]
+    _tess_bin = 'tesseract.exe' if sys.platform == 'win32' else 'tesseract'
+    pytesseract.pytesseract.tesseract_cmd = os.path.join(_base, _tess_bin)
+    os.environ['TESSDATA_PREFIX'] = os.path.join(_base, 'tessdata')
+
 class FolderProcessor:
     def __init__(self, anonymizer: DocumentAnonymizer, mode="default"):
         self.anonymizer = anonymizer
