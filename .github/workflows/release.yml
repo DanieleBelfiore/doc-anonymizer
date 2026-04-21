@@ -60,10 +60,11 @@ jobs:
 
           # Locate tesseract binary and tessdata
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            TESS_BIN=$(where tesseract | head -1 | tr '\\' '/')
-            TESS_DATA=$(dirname "$TESS_BIN")/tessdata
-            TESS_BIN_ARG="$TESS_BIN;."
-            TESS_DATA_ARG="$TESS_DATA;tessdata"
+            # choco installs to a fixed path; PATH refresh not reliable in bash
+            TESS_BIN="C:/Program Files/Tesseract-OCR/tesseract.exe"
+            TESS_DATA="C:/Program Files/Tesseract-OCR/tessdata"
+            TESS_BIN_ARG="${TESS_BIN};."
+            TESS_DATA_ARG="${TESS_DATA};tessdata"
           else
             TESS_BIN=$(which tesseract)
             # Search common tessdata locations
