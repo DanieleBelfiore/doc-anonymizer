@@ -4,7 +4,7 @@
 
 **Doc Anonymizer** is a professional, local-first desktop application designed to automatically redact sensitive information from documents while preserving their structure and clinical/technical utility. 
 
-Built with privacy in mind, all processing happens **100% offline** on your machine. No data ever leaves your computer.
+Built with privacy in mind, all processing happens **100% offline** on your machine. Your documents never leave your computer. (The app only goes online for two optional, document-unrelated tasks: the one-time AI model download and a version check against GitHub Releases at startup.)
 
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 ![Tech](https://img.shields.io/badge/tech-React%20%7C%20Electron%20%7C%20Python-green)
@@ -13,7 +13,7 @@ Built with privacy in mind, all processing happens **100% offline** on your mach
 ## 📥 Quick Download (For End Users)
 
 > [!IMPORTANT]
-> **Current Language Support**: This application is currently optimized and configured exclusively for **Italian** documents. Supported PII detection (Names, Addresses, Fiscal Codes) is tuned for the Italian language and legal formats.
+> **Current Language Support**: This application is currently optimized and configured exclusively for **Italian** documents. PII detection (names, addresses, phone numbers, emails, codice fiscale / partita IVA, organizations, dates of birth, IBANs, ID document numbers, license plates) is tuned for the Italian language and legal formats.
 
 You **do not need to be a developer** to use this application. You can download the ready-to-use installer for your specific operating system:
 
@@ -30,11 +30,9 @@ You **do not need to be a developer** to use this application. You can download 
 
 - **Multi-Format Support**: Anonymize `.pdf` (both native and scanned), `.docx`, and `.txt` files.
 - **Deep OCR Integration**: Uses Tesseract OCR to "read" and redact scanned PDFs.
-- **Linguistic Intelligence**: Powered by `spaCy` (Large Italian Model), using grammatical analysis to protect PII without destroying technical data.
-- **Dual Processing Modes**:
-  - 🟢 **Default**: Surgical redaction. Focuses only on Names, Fiscal Codes (CF/PIVA), Street Addresses, Phone Numbers, and Emails.
-  - 🔴 **Aggressive**: Stricter detection for maximum security.
-- **100% Privacy**: No cloud APIs, no internet required. Your documents stay on your hard drive.
+- **Local AI Detection**: Powered by a local LLM (via [Ollama](https://ollama.com), default model `gemma4:e2b`) that understands context — e.g. telling a person's name apart from a street named after them — instead of relying on fixed grammar rules.
+- **Detects**: names, physical addresses, phone numbers, emails, codice fiscale / partita IVA, organizations, date of birth, IBAN, ID document numbers, and vehicle plates.
+- **100% Privacy**: No cloud APIs, no internet required at processing time. The AI model runs entirely on your machine; the only network request ever made is the one-time model download on first launch.
 
 ---
 
@@ -42,8 +40,8 @@ You **do not need to be a developer** to use this application. You can download 
 
 The app uses a hybrid architecture to ensure cross-platform compatibility:
 1.  **Frontend**: React 19 + Tailwind CSS 4.
-2.  **Shell**: Electron 41.
-3.  **Engine**: A Python 3 sidecar process for high-performance NLP.
+2.  **Shell**: Electron 41 — also manages a local **Ollama** sidecar process for AI inference.
+3.  **Engine**: A Python 3 sidecar process that extracts text from documents and calls the local AI model to find sensitive data.
 
 ---
 
@@ -55,6 +53,7 @@ If you want to contribute or build the app yourself, follow these steps:
 - **Node.js** (v25+)
 - **Python** (v3.14+)
 - **Tesseract OCR**: Required for scanned document support.
+- **[Ollama](https://ollama.com)**: Required for local AI detection.
 
 ### Setup
 1.  **Clone & Install Node deps**:
@@ -69,13 +68,17 @@ If you want to contribute or build the app yourself, follow these steps:
     python3 -m venv venv
     source venv/bin/activate
     pip install -r requirements.txt
-    python -m spacy download it_core_news_lg
     cd ..
     ```
-3.  **Run Development Mode**:
+3.  **Pull the AI model** (one-time, ~7GB):
+    ```bash
+    ollama pull gemma4:e2b
+    ```
+4.  **Run Development Mode**:
     ```bash
     npm run dev
     ```
+    The app spawns `ollama serve` automatically if it's not already running.
 
 ## 📄 License
 

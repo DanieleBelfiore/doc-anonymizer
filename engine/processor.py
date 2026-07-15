@@ -8,7 +8,7 @@ import fitz  # PyMuPDF
 import pytesseract
 from PIL import Image
 import io
-from engine.anonymizer import DocumentAnonymizer
+from engine.anonymizer import DocumentAnonymizer, Entity, REPLACEMENTS
 
 # When running as a PyInstaller bundle, point pytesseract at the bundled binary
 if getattr(sys, 'frozen', False):
@@ -18,9 +18,8 @@ if getattr(sys, 'frozen', False):
     os.environ['TESSDATA_PREFIX'] = os.path.join(_base, 'tessdata')
 
 class FolderProcessor:
-    def __init__(self, anonymizer: DocumentAnonymizer, mode="default"):
+    def __init__(self, anonymizer: DocumentAnonymizer):
         self.anonymizer = anonymizer
-        self.mode = mode
         self.supported_extensions = {".txt", ".docx", ".pdf"}
 
     def process_folder(self, input_path: str, output_path: str):
@@ -66,17 +65,9 @@ class FolderProcessor:
     def _process_txt(self, input_file: Path, output_file: Path):
         with open(input_file, "r", encoding="utf-8", errors="replace") as f:
             content = f.read()
-        anonymized_content = self.anonymizer.anonymize(content, mode=self.mode)
+        anonymized_content = self.anonymizer.anonymize(content)
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(anonymized_content)
-
-    _REPLACEMENT_MAP = {
-        "PERSON": "[NAME]",
-        "PHONE_NUMBER": "[PHONE]",
-        "LOCATION": "[ADDRESS]",
-        "FISCAL_ID": "[FISCAL_ID]",
-        "EMAIL_ADDRESS": "[EMAIL]",
-    }
 
     def _apply_entities_to_runs(self, paragraph, entities) -> None:
         """Apply entity redactions run-by-run to preserve inline formatting."""
@@ -92,7 +83,7 @@ class FolderProcessor:
 
         # Process right-to-left so earlier positions stay valid
         for entity in sorted(entities, key=lambda e: e.start, reverse=True):
-            replacement = self._REPLACEMENT_MAP.get(entity.entity_type, "[REDACTED]")
+            replacement = REPLACEMENTS.get(entity.entity_type, "[REDACTED]")
             ent_start, ent_end = entity.start, entity.end
             placed = False
             for r_start, r_end, run in run_spans:
@@ -107,25 +98,66 @@ class FolderProcessor:
                     run.text = run.text[:local_start] + run.text[local_end:]
 
     def _process_docx(self, input_file: Path, output_file: Path):
+        """Analyze the whole document in one LLM call, then remap entities back
+        to individual paragraphs by absolute offset.
+
+        Calling analyze_and_filter per-paragraph (the previous approach) fed
+        the model isolated, often very short strings — a doc with headers or
+        single-line table cells hits a real failure mode where the model
+        reliably returns zero entities on minimal input (verified, not
+        sampling variance). Concatenating first gives it full-document
+        context, matching how _process_pdf already analyzes a whole page at
+        once. See CLAUDE.md's "Known limitation" note.
+        """
         doc = Document(input_file)
 
-        def anonymize_paragraphs(paragraphs):
+        segments: list[tuple[int, int, object]] = []  # (start, end, paragraph) in full_text
+        parts: list[str] = []
+        pos = 0
+
+        def collect(paragraphs):
+            nonlocal pos
             for paragraph in paragraphs:
                 if not paragraph.text.strip():
                     continue
+                segments.append((pos, pos + len(paragraph.text), paragraph))
+                parts.append(paragraph.text)
+                pos += len(paragraph.text) + 1  # +1 for the "\n" join separator
 
-                entities = self.anonymizer.analyze_and_filter(paragraph.text, mode=self.mode)
-                if not entities:
-                    continue
-
-                self._apply_entities_to_runs(paragraph, entities)
-
-        anonymize_paragraphs(doc.paragraphs)
+        collect(doc.paragraphs)
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
-                    anonymize_paragraphs(cell.paragraphs)
-                    
+                    collect(cell.paragraphs)
+
+        if not parts:
+            doc.save(output_file)
+            return
+
+        full_text = "\n".join(parts)
+        entities = self.anonymizer.analyze_and_filter(full_text)
+
+        for seg_start, seg_end, paragraph in segments:
+            # Clamp each entity to the portion overlapping this paragraph.
+            # Whitespace-tolerant matching means an entity can legitimately
+            # span the "\n" between two adjacent paragraphs (e.g. a name
+            # split across consecutive lines by a column layout) — dropping
+            # those would silently leak PII, so each affected paragraph
+            # redacts its own slice instead.
+            local_entities = []
+            for e in entities:
+                overlap_start = max(e.start, seg_start)
+                overlap_end = min(e.end, seg_end)
+                if overlap_start < overlap_end:
+                    local_entities.append(Entity(
+                        start=overlap_start - seg_start,
+                        end=overlap_end - seg_start,
+                        entity_type=e.entity_type,
+                        score=e.score,
+                    ))
+            if local_entities:
+                self._apply_entities_to_runs(paragraph, local_entities)
+
         doc.save(output_file)
 
     def _process_pdf(self, input_file: Path, output_file: Path):
@@ -134,7 +166,7 @@ class FolderProcessor:
             for page in doc:
                 text = page.get_text("text")
 
-                filtered = self.anonymizer.analyze_and_filter(text, mode=self.mode)
+                filtered = self.anonymizer.analyze_and_filter(text)
 
                 # Fallback to OCR if page seems scanned
                 if not filtered and len(text.strip()) < 10:
@@ -145,7 +177,7 @@ class FolderProcessor:
                     ocr_data = pytesseract.image_to_data(img, lang='ita', output_type=pytesseract.Output.DICT)
                     ocr_text = " ".join([w for w in ocr_data['text'] if w.strip()])
 
-                    ocr_entities = self.anonymizer.analyze_and_filter(ocr_text, mode=self.mode)
+                    ocr_entities = self.anonymizer.analyze_and_filter(ocr_text)
 
                     for res in ocr_entities:
                         target_words = ocr_text[res.start:res.end].split()
@@ -172,12 +204,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Anonymize documents.")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--mode", default="default", choices=["default", "aggressive"])
     args = parser.parse_args()
-    
+
     try:
         engine = DocumentAnonymizer()
-        processor = FolderProcessor(engine, mode=args.mode)
+
+        # Fail fast with one clear error instead of a per-file warning storm
+        # if the AI engine isn't usable at all.
+        if not engine.client.health():
+            print(json.dumps({"status": "error", "message": f"AI engine not reachable at {engine.client.config.host}. Is Ollama running?"}))
+            sys.stdout.flush()
+            sys.exit(1)
+        if not engine.client.model_available():
+            print(json.dumps({"status": "error", "message": f"AI model '{engine.client.config.model}' not installed. Download it from the app before processing."}))
+            sys.stdout.flush()
+            sys.exit(1)
+
+        processor = FolderProcessor(engine)
         processor.process_folder(args.input, args.output)
     except Exception as e:
         print(json.dumps({"status": "error", "message": str(e)}))

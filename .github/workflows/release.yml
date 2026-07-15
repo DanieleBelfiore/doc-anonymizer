@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write
 
+env:
+  # Pin the Ollama sidecar version bundled with the app. Bump deliberately —
+  # verify release assets exist at https://github.com/ollama/ollama/releases
+  # before changing this.
+  OLLAMA_VERSION: "0.32.0"
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -50,7 +56,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r engine/requirements.txt
-          python -m spacy download it_core_news_lg
 
       - name: Build Python Sidecar
         shell: bash
@@ -80,14 +85,78 @@ jobs:
           echo "Tessdata dir: $TESS_DATA"
 
           pyinstaller --noconfirm --onefile --console --name "engine-bin" \
-            --collect-all spacy \
-            --collect-all it_core_news_lg \
-            --collect-all presidio_analyzer \
-            --collect-all presidio_anonymizer \
             --add-binary "$TESS_BIN_ARG" \
             --add-data "$TESS_DATA_ARG" \
             --distpath resources/bin \
             engine/processor.py
+
+      - name: Download Ollama sidecar (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y zstd
+          mkdir -p resources/bin _ollama_staging
+          curl -fsSL -o /tmp/ollama.tar.zst \
+            "https://github.com/ollama/ollama/releases/download/v${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
+          tar --zstd -xf /tmp/ollama.tar.zst -C _ollama_staging
+          # Drop GPU vendor backends we don't ship — CPU-only inference is the
+          # supported path for this app, and CUDA/ROCm runtimes account for
+          # most of the archive's size (~1.4GB vs ~150MB CPU-only).
+          find _ollama_staging -iregex '.*\(cuda\|rocm\|hip\|nvidia\).*' -delete
+          cp -r _ollama_staging/. resources/bin/
+          chmod +x resources/bin/ollama
+          rm -rf _ollama_staging /tmp/ollama.tar.zst
+
+      - name: Download Ollama sidecar (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p resources/bin
+          curl -fsSL -o /tmp/ollama.tgz \
+            "https://github.com/ollama/ollama/releases/download/v${OLLAMA_VERSION}/ollama-darwin.tgz"
+          tar -xzf /tmp/ollama.tgz -C resources/bin
+          chmod +x resources/bin/ollama
+          rm -f /tmp/ollama.tgz
+
+      - name: Download Ollama sidecar (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path resources/bin | Out-Null
+          New-Item -ItemType Directory -Force -Path _ollama_staging | Out-Null
+          Invoke-WebRequest -Uri "https://github.com/ollama/ollama/releases/download/v$env:OLLAMA_VERSION/ollama-windows-amd64.zip" -OutFile ollama.zip
+          Expand-Archive -Path ollama.zip -DestinationPath _ollama_staging -Force
+          Get-ChildItem -Path _ollama_staging -Recurse | Where-Object {
+            $_.Name -match '(?i)(cuda|rocm|hip|nvidia)'
+          } | Remove-Item -Force -Recurse
+          Copy-Item -Path _ollama_staging\* -Destination resources/bin -Recurse -Force
+          Remove-Item -Recurse -Force _ollama_staging, ollama.zip
+
+      - name: Smoke test Ollama sidecar
+        shell: bash
+        run: |
+          set -euo pipefail
+          BIN="resources/bin/ollama"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then BIN="resources/bin/ollama.exe"; fi
+          chmod +x "$BIN" || true
+          OLLAMA_HOST=127.0.0.1:11434 "$BIN" serve &
+          SIDECAR_PID=$!
+          ok=""
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+              ok=1
+              break
+            fi
+            sleep 1
+          done
+          kill "$SIDECAR_PID" 2>/dev/null || true
+          if [[ -z "$ok" ]]; then
+            echo "Ollama sidecar failed to become healthy after trimming GPU backends" >&2
+            exit 1
+          fi
+          echo "Ollama sidecar healthy"
 
       - name: Sync version and Install Node dependencies
         shell: bash

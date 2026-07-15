@@ -8,7 +8,7 @@ yarn-error.log*
 # Build outputs
 dist/
 dist-ssr/
-dist-electron/
+dist_electron/
 *.local
 out/
 
@@ -31,8 +31,8 @@ build/
 Thumbs.db
 *.swp
 
-# Local Test Data (Privacy)
-test_input/*
+# Local Test Data — test_input/ holds synthetic/mocked data only, tracked
+# in the repo as the regression corpus (see scripts/generate_test_corpus.py).
+# test_output/ is regenerated output, not source data.
 test_output/*
-!test_input/.gitkeep
 !test_output/.gitkeep

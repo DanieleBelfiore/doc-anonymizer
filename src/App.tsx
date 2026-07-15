@@ -10,22 +10,30 @@ import
   FileText,
   ExternalLink,
   AlertTriangle,
-  XCircle
+  XCircle,
+  Cpu,
+  Download
 } from 'lucide-react';
+
+type EngineState = 'checking' | 'starting' | 'needs_model' | 'downloading' | 'ready' | 'error';
 
 function App()
 {
   const [inputPath, setInputPath] = useState('');
   const [outputPath, setOutputPath] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentFile, setCurrentFile] = useState('');
   const [status, setStatus] = useState<'idle' | 'processing' | 'done'>('idle');
-  const [mode, setMode] = useState<'default' | 'aggressive'>('default');
   const [version, setVersion] = useState('');
   const [newVersion, setNewVersion] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<Array<{ file: string; error: string }>>([]);
+
+  const [engineState, setEngineState] = useState<EngineState>('checking');
+  const [engineModel, setEngineModel] = useState('');
+  const [engineError, setEngineError] = useState<string | null>(null);
+  const [pullStatus, setPullStatus] = useState('');
+  const [pullPercentage, setPullPercentage] = useState(0);
 
   React.useEffect(() =>
   {
@@ -83,6 +91,80 @@ function App()
     };
   }, []);
 
+  // Poll the local AI engine (Ollama sidecar) until it's reachable, then
+  // decide whether the model still needs to be downloaded.
+  React.useEffect(() =>
+  {
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 30; // ~30s at 1s interval
+
+    const poll = async () =>
+    {
+      if (cancelled) return;
+      try
+      {
+        const s = await window.electronAPI.checkEngine();
+        if (cancelled) return;
+        setEngineModel(s.model);
+
+        if (!s.running)
+        {
+          attempts += 1;
+          if (attempts >= maxAttempts)
+          {
+            setEngineState('error');
+            setEngineError('Local AI engine did not start. Is Ollama installed?');
+            return;
+          }
+          setEngineState('starting');
+          setTimeout(poll, 1000);
+          return;
+        }
+
+        setEngineState(s.modelPresent ? 'ready' : 'needs_model');
+      } catch (e)
+      {
+        if (cancelled) return;
+        setEngineState('error');
+        setEngineError(e instanceof Error ? e.message : 'Failed to reach the local AI engine.');
+      }
+    };
+
+    poll();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleDownloadModel = async () =>
+  {
+    setEngineState('downloading');
+    setEngineError(null);
+    setPullStatus('Starting download...');
+    setPullPercentage(0);
+
+    const pullHandler = window.electronAPI.onEnginePullProgress((data) =>
+    {
+      setPullStatus(data.status);
+      if (data.total && data.completed)
+      {
+        setPullPercentage(Math.round((data.completed / data.total) * 100));
+      }
+    });
+
+    try
+    {
+      await window.electronAPI.pullEngineModel();
+      setEngineState('ready');
+    } catch (e)
+    {
+      setEngineState('error');
+      setEngineError(e instanceof Error ? e.message : 'Model download failed.');
+    } finally
+    {
+      window.electronAPI.offEnginePullProgress(pullHandler);
+    }
+  };
+
   const handleSelectInput = async () =>
   {
     const path = await window.electronAPI.selectFolder();
@@ -105,22 +187,25 @@ function App()
     }
     setErrorMessage(null);
     setWarnings([]);
-    setIsProcessing(true);
     setStatus('processing');
     setProgress(0);
 
     try
     {
-      await window.electronAPI.startAnonymization({ inputPath, outputPath, mode });
-      setIsProcessing(false);
+      await window.electronAPI.startAnonymization({ inputPath, outputPath });
       setStatus('done');
     } catch (error)
     {
       const msg = error instanceof Error ? error.message : 'An error occurred during processing.';
-      setIsProcessing(false);
       setStatus('idle');
-      setErrorMessage(msg);
+      // User-initiated cancel isn't an error — reset quietly.
+      if (!msg.includes('cancelled')) setErrorMessage(msg);
     }
+  };
+
+  const handleCancel = () =>
+  {
+    window.electronAPI.cancelAnonymization();
   };
 
   const reset = () =>
@@ -218,25 +303,52 @@ function App()
               <p className="text-slate-500 max-w-sm mb-8 text-sm">
                 Configure your folder paths to start processing your documents securely.
               </p>
-              <div className="flex bg-slate-100 p-1 rounded-xl mb-8">
-                <button
-                  onClick={() => setMode('default')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'default' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Default
-                </button>
-                <button
-                  onClick={() => setMode('aggressive')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'aggressive' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Aggressive
-                </button>
-              </div>
+
+              {(engineState === 'checking' || engineState === 'starting') && (
+                <div className="flex items-center gap-2 bg-slate-100 text-slate-500 text-sm font-medium rounded-xl px-4 py-3 mb-8">
+                  <Loader2 size={16} className="animate-spin" />
+                  Starting local AI engine...
+                </div>
+              )}
+
+              {engineState === 'needs_model' && (
+                <div className="flex flex-col items-center gap-3 bg-primary-50 border border-primary-100 rounded-2xl px-6 py-5 mb-8 max-w-sm">
+                  <Cpu className="text-primary-500" size={28} />
+                  <p className="text-sm text-slate-600 text-center">
+                    The local AI model ({engineModel}) isn't downloaded yet. This is a one-time download (~7.2GB); everything runs offline afterwards.
+                  </p>
+                  <button onClick={handleDownloadModel} className="btn-primary flex items-center gap-2 !py-2 !px-5 text-sm">
+                    <Download size={16} /> Download AI model
+                  </button>
+                </div>
+              )}
+
+              {engineState === 'downloading' && (
+                <div className="w-full max-w-sm mb-8">
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-sm font-medium text-slate-600 truncate">{pullStatus || 'Downloading...'}</span>
+                    <span className="font-bold text-primary-600 text-sm shrink-0 ml-2">{pullPercentage}%</span>
+                  </div>
+                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary-600 transition-all duration-300 ease-out"
+                      style={{ width: `${pullPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {engineState === 'error' && (
+                <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-3 mb-8 text-sm max-w-sm">
+                  <XCircle size={16} className="shrink-0" />
+                  <span>{engineError || 'Local AI engine unavailable.'}</span>
+                </div>
+              )}
 
               <button
                 onClick={handleStart}
                 className="btn-primary flex items-center gap-2 py-4 px-10 rounded-2xl text-lg group"
-                disabled={isProcessing || !inputPath || !outputPath}
+                disabled={status === 'processing' || !inputPath || !outputPath || engineState !== 'ready'}
               >
                 Start <Play size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>
@@ -269,8 +381,13 @@ function App()
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
+              <div className="flex justify-center mt-6">
+                <button onClick={handleCancel} className="btn-secondary !py-2 !px-6 text-sm">
+                  Cancel
+                </button>
+              </div>
               <p className="text-[10px] text-slate-400 mt-6 flex items-center justify-center gap-1 uppercase tracking-wider font-bold">
-                <Shield size={12} /> 100% Local Privacy. No data leaves your computer.
+                <Shield size={12} /> 100% Local Processing. Your documents never leave your computer.
               </p>
             </div>
           )}

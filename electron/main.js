@@ -1,12 +1,14 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
+const ollama = require('./ollama');
 
 // Set the application name for the OS
 app.setName('Doc Anonymizer');
 
 let mainWindow = null;
 let activePythonProcess = null;
+let cancelRequested = false;
 
 function createWindow() {
   const appPath = app.getAppPath();
@@ -77,6 +79,16 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
 
+  // Kick off the Ollama sidecar in the background. The renderer queries
+  // `check-engine` to know when it's ready; we don't block window creation.
+  ollama.ensureRunning({ packaged: app.isPackaged })
+    .then(({ started, pid }) => {
+      console.log(`[ollama-sidecar] ready (we_spawned=${started}${pid ? ` pid=${pid}` : ''})`);
+    })
+    .catch(err => {
+      console.error('[ollama-sidecar] failed to start:', err.message);
+    });
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -87,7 +99,12 @@ app.on('window-all-closed', () => {
     activePythonProcess.kill();
     activePythonProcess = null;
   }
+  ollama.stop();
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('before-quit', () => {
+  ollama.stop();
 });
 
 // IPC Handlers
@@ -100,9 +117,8 @@ ipcMain.handle('select-folder', async () => {
   return result.filePaths[0];
 });
 
-ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mode }) => {
-  const ALLOWED_MODES = ['default', 'aggressive'];
-  const safeMode = ALLOWED_MODES.includes(mode) ? mode : 'default';
+ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath }) => {
+  if (activePythonProcess) throw new Error('An anonymization is already running');
   const safeInput = path.resolve(inputPath);
   const safeOutput = path.resolve(outputPath);
   if (!path.isAbsolute(safeInput) || !path.isAbsolute(safeOutput)) throw new Error('Invalid paths');
@@ -112,18 +128,38 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
     let settled = false;
     const settle = (fn, val) => { if (!settled) { settled = true; fn(val); } };
 
+    // Native completion popup with a shortcut to the results. Guarded so the
+    // two success paths ('completed' on stdout and exit code 0) can't both
+    // trigger it.
+    let completionDialogShown = false;
+    const showCompletionDialog = () => {
+      if (completionDialogShown || !mainWindow) return;
+      completionDialogShown = true;
+      dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: 'Anonymization complete',
+        message: 'Anonymization complete',
+        detail: 'All documents have been processed.',
+        buttons: ['Open Folder', 'Close'],
+        defaultId: 0,
+        cancelId: 1,
+      }).then(({ response }) => {
+        if (response === 0) shell.openPath(safeOutput);
+      });
+    };
+
     let pythonExecutable;
     let extraArgs = [];
 
     if (app.isPackaged) {
       const binaryName = process.platform === 'win32' ? 'engine-bin.exe' : 'engine-bin';
       pythonExecutable = path.join(process.resourcesPath, 'bin', binaryName);
-      extraArgs = ['--input', safeInput, '--output', safeOutput, '--mode', safeMode];
+      extraArgs = ['--input', safeInput, '--output', safeOutput];
     } else {
       pythonExecutable = process.platform === 'win32'
         ? path.join(__dirname, '../engine/venv/Scripts/python.exe')
         : path.join(__dirname, '../engine/venv/bin/python');
-      extraArgs = ['-m', 'engine.processor', '--input', safeInput, '--output', safeOutput, '--mode', safeMode];
+      extraArgs = ['-m', 'engine.processor', '--input', safeInput, '--output', safeOutput];
     }
 
     const rootPath = path.join(__dirname, '..');
@@ -132,11 +168,14 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
       PYTHONPATH: rootPath,
       PYTHONUNBUFFERED: '1',
       LANG: 'en_US.UTF-8',
-      LC_ALL: 'en_US.UTF-8'
+      LC_ALL: 'en_US.UTF-8',
+      OLLAMA_HOST: `http://${ollama.HOST}:${ollama.PORT}`,
+      OLLAMA_MODEL: ollama.DEFAULT_MODEL,
     };
 
     const pythonProcess = spawn(pythonExecutable, extraArgs, { env });
     activePythonProcess = pythonProcess;
+    cancelRequested = false;
 
     pythonProcess.stdout.on('data', (data) => {
       const lines = data.toString().split('\n');
@@ -150,6 +189,7 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
             if (mainWindow) mainWindow.webContents.send('warning-update', message);
           } else if (message.status === 'completed') {
             settle(resolve, { success: true });
+            showCompletionDialog();
           } else if (message.status === 'error') {
             settle(reject, new Error(message.message));
           }
@@ -169,8 +209,13 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
 
     pythonProcess.on('close', (code) => {
       activePythonProcess = null;
-      if (code === 0) {
+      if (cancelRequested) {
+        // Renderer-initiated cancel: distinguishable from a real failure so
+        // the UI can reset silently instead of showing an error banner.
+        settle(reject, new Error('cancelled'));
+      } else if (code === 0) {
         settle(resolve, { success: true });
+        showCompletionDialog();
       } else {
         settle(reject, new Error(`Python process exited with code ${code}`));
       }
@@ -178,8 +223,38 @@ ipcMain.handle('start-anonymization', async (event, { inputPath, outputPath, mod
   });
 });
 
+// Kill the running anonymization, if any. Already-written output files are
+// left in place; the file being processed at kill time is simply not written.
+ipcMain.handle('cancel-anonymization', () => {
+  if (activePythonProcess) {
+    cancelRequested = true;
+    activePythonProcess.kill();
+    return { cancelled: true };
+  }
+  return { cancelled: false };
+});
+
 ipcMain.handle('get-app-version', () => {
   return app.getVersion();
+});
+
+// Engine status: { running: bool, modelPresent: bool, model: string }
+ipcMain.handle('check-engine', async () => {
+  const running = await ollama.isHealthy();
+  const modelPresent = running ? await ollama.hasModel(ollama.DEFAULT_MODEL) : false;
+  return { running, modelPresent, model: ollama.DEFAULT_MODEL };
+});
+
+// Trigger model download. Streams progress chunks to renderer via
+// `engine-pull-progress`. Resolves when the pull completes successfully.
+ipcMain.handle('pull-engine-model', async () => {
+  if (!(await ollama.isHealthy())) {
+    throw new Error('Ollama engine is not running');
+  }
+  await ollama.pullModel(ollama.DEFAULT_MODEL, (chunk) => {
+    if (mainWindow) mainWindow.webContents.send('engine-pull-progress', chunk);
+  });
+  return { success: true, model: ollama.DEFAULT_MODEL };
 });
 
 ipcMain.handle('open-external', async (event, url) => {
