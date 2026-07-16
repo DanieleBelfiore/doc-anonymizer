@@ -26,6 +26,20 @@ You **do not need to be a developer** to use this application. You can download 
 
 ---
 
+## 💻 System Requirements
+
+| | Minimum | Notes |
+|---|---|---|
+| **OS** | Windows 10/11, macOS 11+, or a modern 64-bit Linux distro | Matches installer types above |
+| **RAM** | 8 GB | 16 GB recommended for comfortable multitasking while the AI model runs |
+| **Disk space** | ~10 GB free | ~200-300 MB for the app itself + ~7.2 GB one-time AI model download |
+| **CPU** | Any 64-bit CPU (Intel/AMD/Apple Silicon) | No GPU required — inference runs on CPU by design |
+| **Internet** | Only for first-run setup | One-time AI model download (~7.2 GB) and an optional startup version check. Document processing itself never touches the network |
+
+Processing speed depends on your CPU: expect roughly a few seconds per page on a modern machine.
+
+---
+
 ## ✨ Key Features
 
 - **Multi-Format Support**: Anonymize `.pdf` (both native and scanned), `.docx`, and `.txt` files.
