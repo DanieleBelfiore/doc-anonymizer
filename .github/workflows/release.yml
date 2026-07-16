@@ -104,7 +104,12 @@ jobs:
           # supported path for this app, and CUDA/ROCm runtimes account for
           # most of the archive's size (~1.4GB vs ~150MB CPU-only).
           find _ollama_staging -iregex '.*\(cuda\|rocm\|hip\|nvidia\).*' -delete
-          cp -r _ollama_staging/. resources/bin/
+          # Upstream ships bin/ollama + lib/ollama/*.so as siblings (verified
+          # by running the real binary: it resolves libs via a path relative
+          # to its own directory, so this exact relative arrangement must be
+          # preserved — flattening both into one dir breaks library loading).
+          cp -r _ollama_staging/bin/. resources/bin/
+          cp -r _ollama_staging/lib resources/lib
           chmod +x resources/bin/ollama
           rm -rf _ollama_staging /tmp/ollama.tar.zst
 
@@ -131,7 +136,11 @@ jobs:
           Get-ChildItem -Path _ollama_staging -Recurse | Where-Object {
             $_.Name -match '(?i)(cuda|rocm|hip|nvidia)'
           } | Remove-Item -Force -Recurse
-          Copy-Item -Path _ollama_staging\* -Destination resources/bin -Recurse -Force
+          # Upstream ships ollama.exe + lib/ollama/*.dll as siblings in the
+          # same folder (unlike Linux's bin/+lib split) — preserve that exact
+          # relationship under resources/bin so the exe finds its DLLs.
+          Copy-Item -Path _ollama_staging\ollama.exe -Destination resources\bin\ollama.exe -Force
+          Copy-Item -Path _ollama_staging\lib -Destination resources\bin\lib -Recurse -Force
           Remove-Item -Recurse -Force _ollama_staging, ollama.zip
 
       - name: Smoke test Ollama sidecar

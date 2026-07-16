@@ -24,15 +24,6 @@
       "electron",
       "package.json"
     ],
-    "extraResources": [
-      {
-        "from": "resources/bin",
-        "to": "bin",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
     "publish": [
       {
         "provider": "github",
@@ -44,14 +35,20 @@
         "dmg"
       ],
       "icon": "public/icon.png",
-      "artifactName": "${productName}-${version}.${ext}"
+      "artifactName": "${productName}-${version}.${ext}",
+      "extraResources": [
+        { "from": "resources/bin", "to": "bin", "filter": ["**/*"] }
+      ]
     },
     "win": {
       "target": [
         "nsis"
       ],
       "icon": "public/icon.png",
-      "artifactName": "${productName}-${version}.${ext}"
+      "artifactName": "${productName}-${version}.${ext}",
+      "extraResources": [
+        { "from": "resources/bin", "to": "bin", "filter": ["**/*"] }
+      ]
     },
     "nsis": {
       "oneClick": true,
@@ -64,7 +61,11 @@
         "AppImage"
       ],
       "category": "Utility",
-      "artifactName": "${productName}-${version}.${ext}"
+      "artifactName": "${productName}-${version}.${ext}",
+      "extraResources": [
+        { "from": "resources/bin", "to": "bin", "filter": ["**/*"] },
+        { "from": "resources/lib", "to": "lib", "filter": ["**/*"] }
+      ]
     },
     "dmg": {
       "writeUpdateInfo": false
