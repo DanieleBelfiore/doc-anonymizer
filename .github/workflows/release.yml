@@ -45,7 +45,9 @@ jobs:
 
       - name: Install Tesseract (macOS)
         if: runner.os == 'macOS'
-        run: brew install tesseract tesseract-lang
+        run: |
+          brew untap aws/tap || true
+          brew install tesseract tesseract-lang
 
       - name: Install Tesseract (Windows)
         if: runner.os == 'Windows'
