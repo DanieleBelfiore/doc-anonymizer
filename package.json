@@ -83,20 +83,19 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
-    "@types/node": "^25.6.0",
+    "@types/node": "^24.19.2",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.20",
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.6",
     "cross-env": "^10.1.0",
-    "electron": "^41.2.1",
-    "electron-builder": "^26.8.1",
-    "postcss": "^8.5.3",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0",
+    "postcss": "^8.5.31",
     "tailwindcss": "^4.2.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.2",
-    "vite": "^8.0.8",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
     "wait-on": "^9.0.5"
   }
 }
