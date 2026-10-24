@@ -2,11 +2,17 @@ name: Build and Release
 
 on:
   push:
-    tags:
-      - "v*" # Trigger build only when a version tag is pushed (e.g., v1.0.0)
+    # Every push to main may release: the version comes from the commit
+    # prefixes since the last tag (.github/scripts/next-version.sh).
+    branches: [main]
 
 permissions:
-  contents: write
+  contents: read
+
+# One release at a time, so two quick pushes never compute the same version.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 env:
   # Pin the Ollama sidecar version bundled with the app. Bump deliberately —
@@ -15,7 +21,30 @@ env:
   OLLAMA_VERSION: "0.32.0"
 
 jobs:
-  release:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0 # full history and tags
+
+      - name: Compute next version from commit prefixes
+        id: next
+        run: |
+          set -euo pipefail
+          LAST=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || echo v0.0.0)
+          RANGE="$LAST..HEAD"
+          if [ "$LAST" = v0.0.0 ]; then RANGE=HEAD; fi
+          VERSION=$(git log --no-merges --format=%s "$RANGE" | bash .github/scripts/next-version.sh "$LAST")
+          echo "Last tag: $LAST, next version: ${VERSION:-none, no release}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: version
+    if: needs.version.outputs.version != ''
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -24,16 +53,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.3.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
           cache: "npm"
 
       - name: Setup Python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.14"
 
@@ -171,9 +200,9 @@ jobs:
 
       - name: Sync version and Install Node dependencies
         shell: bash
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
-          # Extract version from tag (v1.2.3 -> 1.2.3)
-          VERSION=${GITHUB_REF#refs/tags/v}
           echo "Setting version to $VERSION"
           npm version $VERSION --no-git-tag-version
           npm install
@@ -181,26 +210,43 @@ jobs:
       - name: Build Frontend (Vite)
         run: npm run build:vite
 
-      - name: Build and Publish Electron App
+      - name: Build Electron App
         shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # 1. Build the app without publishing yet
-          npx electron-builder --config.mac.identity=null
-          
-          # 2. Delete unwanted files from the output directory
-          # On Windows/Linux/Mac the output is usually in dist_electron
-          find dist_electron -maxdepth 1 -type f \( -name "*.yml" -o -name "*.blockmap" \) -delete || true
-          
-          # 3. Publish the remaining installers
-          npx electron-builder --config.mac.identity=null -p always
+        run: npx electron-builder --config.mac.identity=null --publish never
 
-      - name: Cleanup unwanted release assets
-        if: always()
-        shell: bash
+      # Installers only: the release job publishes them once every OS has built.
+      - name: Upload installers
+        uses: actions/upload-artifact@v7
+        with:
+          name: installers-${{ runner.os }}
+          path: |
+            dist_electron/*.dmg
+            dist_electron/*.exe
+            dist_electron/*.AppImage
+          if-no-files-found: error
+
+  release:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download installers
+        uses: actions/download-artifact@v8
+        with:
+          pattern: installers-*
+          path: installers
+          merge-multiple: true
+
+      # Creates the tag on the built commit, only after every OS has built.
+      # gh CLI (preinstalled), not a third-party action: this job can write.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
-          # This step is a fallback in case the action uploads everything.
-          # Note: samuelmeuli action usually handles upload, so to be 100% clean
-          # we often need to configure electron-builder itself or delete files in dist_electron.
-          echo "Cleanup handled via package.json configuration"
+          gh release create "v$VERSION" installers/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$VERSION" \
+            --generate-notes
