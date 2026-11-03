@@ -133,30 +133,3 @@ contactForm.addEventListener('submit', async (e) => {
     send.disabled = false;
   }
 });
-
-// Language: Italian by default, English on request. The English sits in data-en
-// (inner HTML, written by us) and data-en-<attribute>; the Italian is kept on first switch.
-const ATTRS = ['aria-label', 'alt', 'content'];
-const italian = new Map(), italianAttrs = new Map();
-function setLang(lang) {
-  document.documentElement.lang = lang;
-  document.querySelectorAll('[data-en]').forEach((el) => {
-    if (!italian.has(el)) italian.set(el, el.innerHTML);
-    el.innerHTML = lang === 'en' ? el.dataset.en : italian.get(el);
-  });
-  for (const a of ATTRS) document.querySelectorAll(`[data-en-${a}]`).forEach((el) => {
-    const saved = italianAttrs.get(el) || {};
-    saved[a] ??= el.getAttribute(a);
-    italianAttrs.set(el, saved);
-    el.setAttribute(a, lang === 'en' ? el.getAttribute(`data-en-${a}`) : saved[a]);
-  });
-  paintWifi();
-}
-let lang = new URLSearchParams(location.search).get('lang');
-try { lang ??= localStorage.getItem('lang'); } catch {}
-if (lang === 'en') setLang('en');
-document.getElementById('lang').addEventListener('click', () => {
-  lang = document.documentElement.lang === 'en' ? 'it' : 'en';
-  setLang(lang);
-  try { localStorage.setItem('lang', lang); } catch {}
-});

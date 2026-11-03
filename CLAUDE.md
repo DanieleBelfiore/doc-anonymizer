@@ -54,9 +54,11 @@ No manual tags: every push to `main` runs `.github/workflows/release.yml`, which
 ## Logo and landing page
 
 - Logo source: `public/logo.svg` (dark variant `public/logo-dark.svg` for the README). `public/icon.png` (1024px, app and installer icon) is rendered from it; `site/logo.svg` is a copy for the landing page. Change the SVG, then regenerate the other two.
-- Landing page: plain files in `site/` (HTML, CSS, JS, self-hosted Work Sans in `site/fonts/`), no build step, deployed by Netlify from `netlify.toml`.
-- Its copy is Italian, with an English version behind the IT/EN switch in the header (same mechanism as Gittalo):
-  - Every translatable element carries its English in `data-en` (inner HTML) or `data-en-<attribute>` (`aria-label`, `alt`, `content`); `site/main.js` swaps them, remembers the choice in `localStorage` and accepts `?lang=en`.
+- Landing page: plain files in `site/` (HTML, CSS, JS, self-hosted Work Sans in `site/fonts/`), deployed by Netlify from `netlify.toml`.
+- Its copy is Italian at `/`, with an English page at `/en/` (same mechanism as Gittalo):
+  - Every translatable element carries its English in `data-en` (inner HTML) or `data-en-<attribute>` (any attribute, e.g. `aria-label`, `alt`, `content`, `href`).
+  - `site/en/index.html` is generated, never edited: `node scripts/site-en.mjs` (the Netlify build command) applies the English and translates the JSON-LD. It is gitignored, so run the script to preview `/en/` locally. JSON-LD text with no copy on the page goes in `LD_EN` in that script; the build fails on a missing one.
+  - The IT/EN switch is a plain link between the two URLs, with hreflang in the `<head>` and in `site/sitemap.xml`. Asset paths stay root-absolute (`/style.css`) so they load from `/en/` too. `tests/site-en.test.mjs` checks all of this.
   - New copy needs its `data-en` too: `tests/site.test.mjs` fails on visible text without one. The Italian sample documents in the demos carry `lang="it"` and stay Italian.
 - SEO/GEO files: `site/robots.txt`, `site/sitemap.xml` (update `lastmod` when the page changes), `site/llms.txt`, the JSON-LD in the `<head>` (its FAQPage mirrors the FAQ) and `site/og-image.jpg` (a 1200x630 screenshot of the hero).
 - The CSP in `netlify.toml` has no `'unsafe-inline'`: no inline `style` attributes, and the one inline script is allowed by its hash (recompute it if that line changes).

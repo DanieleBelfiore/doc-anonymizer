@@ -1,11 +1,11 @@
-# The public page: plain files in site/, served as they are, with no build step,
-# plus the contact function in netlify/functions/.
+# The public page: plain files in site/, served as they are, plus site/en/index.html,
+# generated from site/index.html by scripts/site-en.mjs; and the contact function in netlify/functions/.
 [build]
   publish = "site"
-  command = ""
-  # Skip the deploy when nothing under site/, netlify/, the package files or this file changed (exit 0 = skip).
+  command = "node scripts/site-en.mjs"
+  # Skip the deploy when nothing under site/, netlify/, the generator, the package files or this file changed (exit 0 = skip).
   # When both refs match (first deploy, manual redeploy) the test fails and the deploy runs.
-  ignore = 'test "$CACHED_COMMIT_REF" != "$COMMIT_REF" && git diff --quiet "$CACHED_COMMIT_REF" "$COMMIT_REF" -- site netlify netlify.toml package.json package-lock.json'
+  ignore = 'test "$CACHED_COMMIT_REF" != "$COMMIT_REF" && git diff --quiet "$CACHED_COMMIT_REF" "$COMMIT_REF" -- site netlify netlify.toml scripts/site-en.mjs package.json package-lock.json'
 
 [build.environment]
   NODE_VERSION = "24"

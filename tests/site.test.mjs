@@ -37,12 +37,9 @@ test('every visible text and label has an English version (Italian sample docume
 
 test('the language switch, title and description have their English versions', () => {
   assert.match(html, /<html lang="it">/);
-  assert.match(html, /<button class="lang" type="button" id="lang" aria-label="Read in English" data-en-aria-label="Leggi in italiano" data-en="[^"]*class=&quot;flag&quot;[^"]*IT">/);
+  assert.match(html, /<a class="lang" id="lang" href="\/en\/" hreflang="en" lang="en" aria-label="Read in English" data-en-href="\/" data-en-hreflang="it" data-en-lang="it" data-en-aria-label="Leggi in italiano" data-en="[^"]*class=&quot;flag&quot;[^"]*IT">/);
   assert.match(head, /<title data-en="[^"]+">/);
   assert.match(head, /<meta name="description" content="[^"]+" data-en-content="[^"]+">/);
-  const js = read('main.js');
-  assert.match(js, /localStorage\.setItem\('lang', lang\)/);
-  assert.match(js, /document\.documentElement\.lang = lang/);
 });
 
 test('title and description fit what search engines show', () => {
@@ -56,7 +53,7 @@ test('title and description fit what search engines show', () => {
 
 test('head has canonical, Open Graph, Twitter card, icons and theme color', () => {
   const meta = (attr, key) => head.match(new RegExp(`<meta ${attr}="${key}" content="([^"]+)"`))?.[1];
-  assert.match(head, new RegExp(`<link rel="canonical" href="${SITE}">`));
+  assert.match(head, new RegExp(`<link rel="canonical" href="${SITE}"`));
   for (const k of ['og:type', 'og:url', 'og:title', 'og:description', 'og:image', 'og:image:width', 'og:image:height', 'og:image:alt', 'og:locale', 'og:site_name']) assert.ok(meta('property', k), k);
   for (const k of ['twitter:card', 'twitter:title', 'twitter:description', 'twitter:image']) assert.ok(meta('name', k), k);
   assert.equal(meta('property', 'og:url'), SITE);
@@ -65,7 +62,7 @@ test('head has canonical, Open Graph, Twitter card, icons and theme color', () =
   assert.equal(meta('property', 'og:image:width'), '1200');
   assert.equal(meta('property', 'og:image:height'), '630');
   assert.ok(meta('name', 'theme-color'));
-  assert.match(head, /<link rel="apple-touch-icon" href="apple-touch-icon.png">/);
+  assert.match(head, /<link rel="apple-touch-icon" href="\/apple-touch-icon.png">/);
   readFileSync(new URL('../site/apple-touch-icon.png', import.meta.url));
   readFileSync(new URL(`../site/${meta('property', 'og:image').slice(SITE.length)}`, import.meta.url));
 });

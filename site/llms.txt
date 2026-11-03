@@ -23,7 +23,8 @@
 
 ## Link
 
-- [Sito](https://doc-anonymizer.danielebelfiore.dev/): presentazione, demo, domande frequenti e modulo di contatto (in italiano e in inglese).
+- [Sito](https://doc-anonymizer.danielebelfiore.dev/): presentazione, demo, domande frequenti e modulo di contatto, in italiano.
+- [Sito in inglese](https://doc-anonymizer.danielebelfiore.dev/en/): la stessa pagina in inglese.
 - [Download, ultima versione](https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest): gli installer per macOS, Windows e Linux.
 - [Codice sorgente su GitHub](https://github.com/DanieleBelfiore/doc-anonymizer)
 - [Segnala un problema](https://github.com/DanieleBelfiore/doc-anonymizer/issues)

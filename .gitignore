@@ -9,6 +9,7 @@ yarn-error.log*
 dist/
 dist-ssr/
 dist_electron/
+site/en/
 *.local
 out/
 
