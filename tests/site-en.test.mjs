@@ -99,3 +99,13 @@ test('the sitemap lists both pages with their alternates, and llms.txt points to
   assert.match(sitemap, /xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/);
   assert.ok(read('site/llms.txt').includes(`(${EN})`));
 });
+
+test('the English page shares the English preview image', () => {
+  const app = (page) => graph(page).find((n) => n['@type'] === 'SoftwareApplication');
+  for (const [page, file] of [[it, 'og-image.jpg'], [en, 'og-image-en.jpg']]) {
+    for (const key of ['og:image', 'twitter:image']) assert.equal(meta(page, key), `${SITE}${file}`, key);
+    assert.equal(app(page).image, `${SITE}${file}`);
+    assert.equal(app(page).screenshot, `${SITE}${file}`);
+  }
+  readFileSync(new URL('../site/og-image-en.jpg', import.meta.url));
+});

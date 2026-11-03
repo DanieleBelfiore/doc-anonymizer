@@ -14,7 +14,8 @@ const LD_EN = {
   '8 GB RAM (16 GB consigliati)': '8 GB RAM (16 GB recommended)',
   '10 GB liberi su disco': '10 GB of free disk space',
 };
-const LD_KEYS = new Set(['name', 'text', 'description', 'featureList', 'memoryRequirements', 'storageRequirements']);
+// image and screenshot take the English og:image (its data-en-content).
+const LD_KEYS = new Set(['name', 'text', 'description', 'featureList', 'memoryRequirements', 'storageRequirements', 'image', 'screenshot']);
 
 // Tags with quoted attributes (a data-en value may hold a literal "<"); raw text elements are skipped whole.
 const TAG = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][\w-]*)((?:\s+[^\s"'>/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*\/?>/g;
