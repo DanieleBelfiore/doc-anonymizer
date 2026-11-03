@@ -22,11 +22,11 @@ function memoryStore() {
   return { get: async key => data.get(key) ?? null, set: async (key, value) => { data.set(key, value); } };
 }
 
-function post(fields, { json = true, ip = '1.2.3.4' } = {}) {
+function post(fields, { json = true, ip = '1.2.3.4', headers = {} } = {}) {
   const body = new URLSearchParams({ name: 'Ada Lovelace', email: 'ada@example.com', message: 'Funziona anche con i PDF scansionati?', ...fields });
   const req = new Request('https://doc-anonymizer.example/api/contact', {
     method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded', ...(json ? { accept: 'application/json' } : {}) },
+    headers: { 'content-type': 'application/x-www-form-urlencoded', ...(json ? { accept: 'application/json' } : {}), ...headers },
     body,
   });
   return [req, { ip }];
@@ -127,4 +127,36 @@ test('when the store fails, nothing is sent', async () => {
   const res = await handle(...post({}));
   assert.equal(res.status, 500);
   assert.equal(sent.length, 0);
+});
+
+test('the synthetic test header with the right token sends only to the Resend test sink', async () => {
+  const { handle, sent } = setup({ env: { ...ENV, SYNTHETIC_TEST_TOKEN: 's3cret' } });
+  const res = await handle(...post({}, { headers: { 'x-synthetic-test': 's3cret' } }));
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { ok: true });
+  assert.equal(res.headers.get('x-synthetic-test'), 'on');
+  assert.deepEqual(sent[0].to, ['delivered@resend.dev']);
+  assert.equal(sent[0].reply_to, 'ada@example.com');
+  const page = await handle(...post({}, { json: false, headers: { 'x-synthetic-test': 's3cret' } }));
+  assert.equal(page.headers.get('x-synthetic-test'), 'on');
+});
+
+test('a wrong synthetic token, or no token configured, mails the owner as usual', async () => {
+  const wrong = setup({ env: { ...ENV, SYNTHETIC_TEST_TOKEN: 's3cret' } });
+  const res = await wrong.handle(...post({}, { headers: { 'x-synthetic-test': 'guess' } }));
+  assert.equal(res.headers.get('x-synthetic-test'), null);
+  assert.deepEqual(wrong.sent[0].to, ['owner@example.com']);
+  for (const token of [undefined, '']) {
+    const unset = setup({ env: { ...ENV, SYNTHETIC_TEST_TOKEN: token } });
+    await unset.handle(...post({}, { headers: { 'x-synthetic-test': '' } }));
+    assert.deepEqual(unset.sent[0].to, ['owner@example.com']);
+  }
+});
+
+test('a synthetic test still counts against the rate limit and the daily cap', async () => {
+  const { handle, sent } = setup({ env: { ...ENV, SYNTHETIC_TEST_TOKEN: 's3cret' } });
+  const synthetic = { headers: { 'x-synthetic-test': 's3cret' } };
+  for (let i = 0; i < 3; i++) assert.equal((await handle(...post({}, synthetic))).status, 200);
+  assert.equal((await handle(...post({}, synthetic))).status, 429);
+  assert.equal(sent.length, 3);
 });

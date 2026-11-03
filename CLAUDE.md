@@ -49,7 +49,7 @@ and copy an `ollama` binary into `resources/bin/` yourself (e.g. `cp $(which oll
 
 ### Release
 
-No manual tags: every push to `main` runs `.github/workflows/release.yml`, which computes the next version from the commit prefixes since the last `v*` tag (`.github/scripts/next-version.sh`), builds the installers on all platforms and publishes the release, creating the tag on the built commit. `‼️ BREAKING` bumps major, `📦 NEW` minor, `📖 DOC` / `🤖 TEST` / `🦄 RELEASE` release nothing, anything else bumps patch. `[skip release]` in the newest commit subject postpones the release to the next push. `package.json` stays at `1.0.0`: CI sets the real version before building. Script tests: `bash .github/scripts/next-version.test.sh`.
+No manual tags: every push to `main` runs `.github/workflows/release.yml` (except pushes that only touch the landing page or Markdown files, see its `paths-ignore`), which computes the next version from the commit prefixes since the last `v*` tag (`.github/scripts/next-version.sh`), builds the installers on all platforms and publishes the release, creating the tag on the built commit. `‼️ BREAKING` bumps major, `📦 NEW` minor, `📖 DOC` / `🤖 TEST` / `🦄 RELEASE` release nothing, anything else bumps patch. `[skip release]` in the newest commit subject postpones the release to the next push. `package.json` stays at `1.0.0`: CI sets the real version before building. Script tests: `bash .github/scripts/next-version.test.sh`.
 
 ## Logo and landing page
 

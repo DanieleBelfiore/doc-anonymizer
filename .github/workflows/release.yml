@@ -5,6 +5,14 @@ on:
     # Every push to main may release: the version comes from the commit
     # prefixes since the last tag (.github/scripts/next-version.sh).
     branches: [main]
+    # The landing page deploys on Netlify: a push that only touches it builds no installers.
+    paths-ignore:
+      - "site/**"
+      - "netlify/**"
+      - "netlify.toml"
+      - "scripts/site-*"
+      - "tests/*.test.mjs"
+      - "**/*.md"
 
 permissions:
   contents: read
@@ -108,6 +116,12 @@ jobs:
                       /usr/local/share/tessdata /opt/homebrew/share/tessdata; do
               [ -d "$d" ] && { TESS_DATA="$d"; break; }
             done
+            # Only the languages the engine reads (lang='ita' in engine/processor.py) plus eng and osd:
+            # Homebrew's tesseract-lang ships every language (~670MB) into the one-file sidecar.
+            mkdir -p _tessdata
+            cp -RL "$TESS_DATA"/configs "$TESS_DATA"/tessconfigs _tessdata/ 2>/dev/null || true
+            cp -L "$TESS_DATA"/{ita,eng,osd}.traineddata _tessdata/
+            TESS_DATA="$PWD/_tessdata"
             TESS_BIN_ARG="$TESS_BIN:."
             TESS_DATA_ARG="$TESS_DATA:tessdata"
           fi

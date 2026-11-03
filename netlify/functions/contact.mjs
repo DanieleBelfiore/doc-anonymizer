@@ -1,7 +1,10 @@
 // POST /api/contact: the contact form of site/index.html. Checks the fields,
 // stops bots and floods, and mails the owner through Resend. Only a count of
 // today's messages is stored (Netlify Blobs), no personal data, and nothing is
-// logged. Env: RESEND_API_KEY, CONTACT_TO, CONTACT_FROM.
+// logged. Env: RESEND_API_KEY, CONTACT_TO, CONTACT_FROM, and optionally
+// SYNTHETIC_TEST_TOKEN: a request whose x-synthetic-test header equals it is a
+// weekly end-to-end check, mailed to Resend's test sink instead of the owner.
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 
 const LIMIT = 3;
@@ -9,6 +12,7 @@ const WINDOW_MS = 10 * 60_000;
 // The Resend account serves other sites too: a flood must not use up its quota.
 const DAILY_LIMIT = 30;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const digest = text => createHash('sha256').update(text).digest();
 
 /** `send(email)` resolves to whether Resend accepted it; `store` keeps the daily count. Tests pass fakes. */
 export function createHandler({ env, send, store, now = Date.now }) {
@@ -59,14 +63,21 @@ export function createHandler({ env, send, store, now = Date.now }) {
       return reply(500, 'failed');
     }
 
+    const token = env.SYNTHETIC_TEST_TOKEN;
+    const synthetic = !!token && timingSafeEqual(digest(token), digest(req.headers.get('x-synthetic-test') ?? ''));
     const sent = await send({
       from: env.CONTACT_FROM,
-      to: [env.CONTACT_TO],
+      // Resend accepts mail to this address but delivers it nowhere.
+      to: synthetic ? ['delivered@resend.dev'] : [env.CONTACT_TO],
       reply_to: email,
       subject: `Doc Anonymizer: messaggio da ${name}`,
       text: `Nome: ${name}\nEmail: ${email}\n\n${message}`,
     });
-    return sent ? reply(200) : reply(502, 'failed');
+    if (!sent) return reply(502, 'failed');
+    const res = reply(200);
+    // Tells the weekly check that its token matched and the mail went to the sink.
+    if (synthetic) res.headers.set('x-synthetic-test', 'on');
+    return res;
   };
 }
 
