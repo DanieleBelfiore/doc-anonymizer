@@ -1,4 +1,11 @@
-# 🛡️ Doc Anonymizer
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/logo-dark.svg">
+    <img src="public/logo.svg" alt="Doc Anonymizer logo" width="120">
+  </picture>
+</p>
+
+# Doc Anonymizer
 
 ![image](image.png)
 
@@ -93,6 +100,13 @@ If you want to contribute or build the app yourself, follow these steps:
     npm run dev
     ```
     The app spawns `ollama serve` automatically if it's not already running.
+
+### Landing page
+- Plain files in `site/`, deployed by Netlify (`netlify.toml`), no build step.
+- Preview it locally:
+    ```bash
+    python3 -m http.server 4321 --directory site
+    ```
 
 ## 📄 License
 

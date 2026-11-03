@@ -51,6 +51,15 @@ and copy an `ollama` binary into `resources/bin/` yourself (e.g. `cp $(which oll
 
 No manual tags: every push to `main` runs `.github/workflows/release.yml`, which computes the next version from the commit prefixes since the last `v*` tag (`.github/scripts/next-version.sh`), builds the installers on all platforms and publishes the release, creating the tag on the built commit. `‼️ BREAKING` bumps major, `📦 NEW` minor, `📖 DOC` / `🤖 TEST` / `🦄 RELEASE` release nothing, anything else bumps patch. `[skip release]` in the newest commit subject postpones the release to the next push. `package.json` stays at `1.0.0`: CI sets the real version before building. Script tests: `bash .github/scripts/next-version.test.sh`.
 
+## Logo and landing page
+
+- Logo source: `public/logo.svg` (dark variant `public/logo-dark.svg` for the README). `public/icon.png` (1024px, app and installer icon) is rendered from it; `site/logo.svg` is a copy for the landing page. Change the SVG, then regenerate the other two.
+- Landing page: plain files in `site/` (HTML, CSS, JS, self-hosted Work Sans in `site/fonts/`), no build step, deployed by Netlify from `netlify.toml`.
+- Its copy is Italian only, like the product's target documents.
+- The CSP in `netlify.toml` has no `'unsafe-inline'`: no inline `style` attributes, and the one inline script is allowed by its hash (recompute it if that line changes).
+- The archive photos in `site/assets/` are CC BY-SA 4.0: the credit line in the footer must stay (sources in `site/assets/credits.json`).
+- Analytics: just-analytics, with the site UUID chosen in advance and set in `site/index.html` (`data-website-id`).
+
 ## Architecture
 
 Four layers communicating via IPC and local HTTP:

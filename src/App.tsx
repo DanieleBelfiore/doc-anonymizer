@@ -220,9 +220,7 @@ function App()
     <div className="flex min-h-screen w-full bg-slate-50 font-sans">
       {/* Sidebar */}
       <div className="w-16 flex flex-col items-center py-6 bg-white border-r border-slate-100 shrink-0">
-        <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-200">
-          <Shield size={24} />
-        </div>
+        <img src="./logo.svg" alt="Doc Anonymizer" className="w-10 h-10" />
       </div>
 
       {/* Main Content */}

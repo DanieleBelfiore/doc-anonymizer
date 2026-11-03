@@ -36,3 +36,6 @@ Thumbs.db
 # test_output/ is regenerated output, not source data.
 test_output/*
 !test_output/.gitkeep
+
+# taste-skill working files
+.taste-skill/

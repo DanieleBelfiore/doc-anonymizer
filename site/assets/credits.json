@@ -1,0 +1,50 @@
+[
+  {
+    "file": "assets/archivio-pescia.jpg",
+    "media": "image",
+    "ref": "openverse:8381d94b-b74e-4632-a0b3-397363254ca3",
+    "title": "Archivio di stato di pescia (sezione di pt), interno, scaffali con faldoni 01",
+    "creator": "Sailko",
+    "creatorUrl": "https://commons.wikimedia.org/wiki/User:Sailko",
+    "date": null,
+    "license": "CC BY-SA 4.0",
+    "licenseCode": "by-sa",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "creditRequired": true,
+    "page": "https://commons.wikimedia.org/w/index.php?curid=72756009",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Archivio_di_stato_di_pescia_%28sezione_di_pt%29%2C_interno%2C_scaffali_con_faldoni_01.jpg/1920px-Archivio_di_stato_di_pescia_%28sezione_di_pt%29%2C_interno%2C_scaffali_con_faldoni_01.jpg",
+    "width": 1920,
+    "height": 1343,
+    "bytes": 818065,
+    "credit": "\"Archivio di stato di pescia (sezione di pt), interno, scaffali con faldoni 01\" by Sailko, CC BY-SA 4.0, via Wikimedia Commons",
+    "notes": [
+      "Share-alike: an altered version (recoloured, combined with other pictures) must be shared under the same licence."
+    ],
+    "saved": "2026-11-03T09:06:37.805Z"
+  },
+  {
+    "file": "assets/archivio-pescia-verticale.jpg",
+    "media": "image",
+    "ref": "openverse:2852d096-804a-4170-83c0-7f530720c3cb",
+    "title": "Archivio di stato di pescia (sezione di pt), interno, scaffali con faldoni 08",
+    "creator": "Sailko",
+    "creatorUrl": "https://commons.wikimedia.org/wiki/User:Sailko",
+    "date": null,
+    "license": "CC BY-SA 4.0",
+    "licenseCode": "by-sa",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "creditRequired": true,
+    "page": "https://commons.wikimedia.org/w/index.php?curid=72756018",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Archivio_di_stato_di_pescia_%28sezione_di_pt%29%2C_interno%2C_scaffali_con_faldoni_08.jpg/1920px-Archivio_di_stato_di_pescia_%28sezione_di_pt%29%2C_interno%2C_scaffali_con_faldoni_08.jpg",
+    "width": 1920,
+    "height": 3005,
+    "bytes": 1359638,
+    "credit": "\"Archivio di stato di pescia (sezione di pt), interno, scaffali con faldoni 08\" by Sailko, CC BY-SA 4.0, via Wikimedia Commons",
+    "notes": [
+      "Share-alike: an altered version (recoloured, combined with other pictures) must be shared under the same licence."
+    ],
+    "saved": "2026-11-03T09:06:38.874Z"
+  }
+]

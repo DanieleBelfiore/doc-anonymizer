@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Doc Anonymizer">
+  <path d="M32 4C24 8 15 10 7 10v18c0 15 10 26 25 32 15-6 25-17 25-32V10c-8 0-17-2-25-6z" fill="#1E88D6"/>
+  <path d="M32 4v56c15-6 25-17 25-32V10c-8 0-17-2-25-6z" fill="#3DB0EA"/>
+  <rect x="17" y="21" width="30" height="4" rx="2" fill="#fff"/>
+  <rect x="17" y="30" width="30" height="7" rx="1.5" fill="#0B1F33"/>
+  <rect x="17" y="42" width="20" height="4" rx="2" fill="#fff"/>
+</svg>
