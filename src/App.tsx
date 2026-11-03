@@ -346,7 +346,7 @@ function App()
               <button
                 onClick={handleStart}
                 className="btn-primary flex items-center gap-2 py-4 px-10 rounded-2xl text-lg group"
-                disabled={status === 'processing' || !inputPath || !outputPath || engineState !== 'ready'}
+                disabled={!inputPath || !outputPath || engineState !== 'ready'}
               >
                 Start <Play size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>

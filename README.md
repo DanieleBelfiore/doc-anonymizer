@@ -53,7 +53,7 @@ Processing speed depends on your CPU: expect roughly a few seconds per page on a
 - **Deep OCR Integration**: Uses Tesseract OCR to "read" and redact scanned PDFs.
 - **Local AI Detection**: Powered by a local LLM (via [Ollama](https://ollama.com), default model `gemma4:e2b`) that understands context — e.g. telling a person's name apart from a street named after them — instead of relying on fixed grammar rules.
 - **Detects**: names, physical addresses, phone numbers, emails, codice fiscale / partita IVA, organizations, date of birth, IBAN, ID document numbers, and vehicle plates.
-- **100% Privacy**: No cloud APIs, no internet required at processing time. The AI model runs entirely on your machine; the only network request ever made is the one-time model download on first launch.
+- **100% Privacy**: No cloud APIs, no internet required at processing time. The AI model runs entirely on your machine; the only network requests are the one-time model download on first launch and a version check against GitHub Releases at startup.
 
 ---
 
@@ -61,7 +61,7 @@ Processing speed depends on your CPU: expect roughly a few seconds per page on a
 
 The app uses a hybrid architecture to ensure cross-platform compatibility:
 1.  **Frontend**: React 19 + Tailwind CSS 4.
-2.  **Shell**: Electron 41 — also manages a local **Ollama** sidecar process for AI inference.
+2.  **Shell**: Electron 45 — also manages a local **Ollama** sidecar process for AI inference.
 3.  **Engine**: A Python 3 sidecar process that extracts text from documents and calls the local AI model to find sensitive data.
 
 ---
@@ -71,7 +71,7 @@ The app uses a hybrid architecture to ensure cross-platform compatibility:
 If you want to contribute or build the app yourself, follow these steps:
 
 ### Prerequisites
-- **Node.js** (v25+)
+- **Node.js** (v24+)
 - **Python** (v3.14+)
 - **Tesseract OCR**: Required for scanned document support.
 - **[Ollama](https://ollama.com)**: Required for local AI detection.
@@ -102,12 +102,14 @@ If you want to contribute or build the app yourself, follow these steps:
     The app spawns `ollama serve` automatically if it's not already running.
 
 ### Landing page
-- Plain files in `site/`, deployed by Netlify (`netlify.toml`), no build step.
+- Plain files in `site/`, deployed by Netlify (`netlify.toml`).
+- The only build step is `node scripts/site-en.mjs`, which generates `site/en/index.html` from `site/index.html`.
 - Preview it locally:
     ```bash
     python3 -m http.server 4321 --directory site
     ```
-- Italian by default, English behind the IT/EN switch in the header (`data-en` attributes, swapped by `site/main.js`).
+- Italian at `/`, English at `/en/`, linked by the IT/EN switch in the header.
+- The English page is generated at build time from the `data-en` attributes of `site/index.html`.
 - "Contatti" opens a form that posts to `netlify/functions/contact.mjs`, which mails the message with Resend.
 - Limits: 3 messages per IP in 10 minutes (in memory) and 30 per day overall (a counter in Netlify Blobs, no personal data).
 - Netlify env vars: `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM` (see `.env.example`).

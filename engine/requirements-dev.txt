@@ -1,0 +1,5 @@
+# Build and dev tools on top of the engine's runtime dependencies.
+-r requirements.txt
+pyinstaller~=6.22
+# scripts/generate_test_corpus.py
+Pillow~=13.0

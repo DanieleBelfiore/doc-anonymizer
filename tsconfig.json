@@ -1,16 +1,18 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "ESNext",
     "lib": ["DOM", "ESNext"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "skipLibCheck": true,
-    "baseUrl": "."
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["vite/client"]
   },
   "include": ["src/**/*", "electron/**/*"],
   "exclude": ["node_modules"]

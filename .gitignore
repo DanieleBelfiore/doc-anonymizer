@@ -35,8 +35,7 @@ Thumbs.db
 # Local Test Data — test_input/ holds synthetic/mocked data only, tracked
 # in the repo as the regression corpus (see scripts/generate_test_corpus.py).
 # test_output/ is regenerated output, not source data.
-test_output/*
-!test_output/.gitkeep
+test_output/
 
 # taste-skill working files
 .taste-skill/
