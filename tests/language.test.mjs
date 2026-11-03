@@ -18,6 +18,12 @@ test('an English browser goes to /en/', () => {
   assert.equal(location(res), `${SITE}en/`);
 });
 
+test('an Italian region stays Italian even with the system in another language', () => {
+  assert.equal(visit({ 'accept-language': 'en-IT,it-IT;q=0.9,en-GB;q=0.8,en;q=0.7' }), undefined);
+  assert.equal(visit({ 'accept-language': 'de-IT' }), undefined);
+  assert.equal(location(visit({ 'accept-language': 'en-GB,it-IT;q=0.5' })), `${SITE}en/`);
+});
+
 test('an unsupported language falls back to English', () => {
   assert.equal(location(visit({ 'accept-language': 'fr-FR,fr;q=0.9' })), `${SITE}en/`);
 });
