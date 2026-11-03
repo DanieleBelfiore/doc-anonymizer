@@ -55,9 +55,13 @@ No manual tags: every push to `main` runs `.github/workflows/release.yml`, which
 
 - Logo source: `public/logo.svg` (dark variant `public/logo-dark.svg` for the README). `public/icon.png` (1024px, app and installer icon) is rendered from it; `site/logo.svg` is a copy for the landing page. Change the SVG, then regenerate the other two.
 - Landing page: plain files in `site/` (HTML, CSS, JS, self-hosted Work Sans in `site/fonts/`), no build step, deployed by Netlify from `netlify.toml`.
-- Its copy is Italian only, like the product's target documents.
+- Its copy is Italian, with an English version behind the IT/EN switch in the header (same mechanism as Gittalo):
+  - Every translatable element carries its English in `data-en` (inner HTML) or `data-en-<attribute>` (`aria-label`, `alt`, `content`); `site/main.js` swaps them, remembers the choice in `localStorage` and accepts `?lang=en`.
+  - New copy needs its `data-en` too: `tests/site.test.mjs` fails on visible text without one. The Italian sample documents in the demos carry `lang="it"` and stay Italian.
+- SEO/GEO files: `site/robots.txt`, `site/sitemap.xml` (update `lastmod` when the page changes), `site/llms.txt`, the JSON-LD in the `<head>` (its FAQPage mirrors the FAQ) and `site/og-image.jpg` (a 1200x630 screenshot of the hero).
 - The CSP in `netlify.toml` has no `'unsafe-inline'`: no inline `style` attributes, and the one inline script is allowed by its hash (recompute it if that line changes).
 - The archive photos in `site/assets/` are CC BY-SA 4.0: the credit line in the footer must stay (sources in `site/assets/credits.json`).
+- Contact form: a `<dialog>` in `site/index.html` posting to `netlify/functions/contact.mjs` (Resend, env vars in `.env.example`), ported from Gittalo. `@netlify/blobs` is a devDependency on purpose: Netlify bundles it into the function, and electron-builder leaves it out of the installers. Tests: `npm run test:site`.
 - Analytics: just-analytics, with the site UUID chosen in advance and set in `site/index.html` (`data-website-id`).
 
 ## Architecture

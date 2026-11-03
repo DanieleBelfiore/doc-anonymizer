@@ -69,6 +69,11 @@ h2 { font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem); }
 .top nav .gh::after { display: none; }
 .top nav .gh:hover svg { transform: scale(1.1); }
 .top .btn { min-height: 40px; font-size: var(--step-small); padding: 0 16px; }
+.lang { all: unset; display: inline-flex; gap: 8px; align-items: center; cursor: pointer; font-weight: 500; font-size: var(--step-small); padding: 6px 10px; border-radius: var(--radius); background: var(--surface); transition: background-color .2s ease; }
+.top.scrolled .lang { background: var(--bg); }
+.lang:hover { background: #d3dde7; }
+.lang:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+.flag { width: 21px; height: 14px; border-radius: 2px; flex: none; }
 
 /* Hero */
 .hero { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); padding: clamp(40px, 7vh, 96px) var(--m) 0; min-height: calc(100svh - var(--header)); align-items: start; }
@@ -224,7 +229,34 @@ h2 { font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem); }
 .foot nav a { color: var(--ink); text-decoration: none; }
 .foot nav a:hover { text-decoration: underline; }
 .foot-r { text-align: right; }
+.foot-r a { text-decoration: none; }
+.foot-r a:hover { text-decoration: underline; }
+.li { width: 20px; height: 20px; display: inline-block; vertical-align: -4px; margin-left: 4px; transition: transform .15s ease-out; }
+.li-link:hover .li { transform: translateY(-2px); }
 .credits { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+
+/* Contact: a modal over the page; without JavaScript, :target shows it */
+.contact { position: fixed; inset: 0; margin: auto; width: min(100% - 2 * var(--m), 520px); max-height: calc(100svh - 2 * var(--m)); overflow: auto; border: 0; border-radius: 8px; padding: clamp(24px, 4vw, 40px); background: var(--paper); color: var(--ink); box-shadow: 0 24px 80px rgba(11, 31, 51, .4); opacity: 0; transform: translateY(12px) scale(.98); transition: opacity .2s var(--ease), transform .2s var(--ease), overlay .2s allow-discrete, display .2s allow-discrete; } /* taste-skill-ignore: dialog floats */
+.contact[open], .contact:target { display: block; opacity: 1; transform: none; }
+@starting-style { .contact[open] { opacity: 0; transform: translateY(12px) scale(.98); } }
+.contact::backdrop { background: rgba(11, 31, 51, .6); transition: background-color .2s var(--ease), overlay .2s allow-discrete, display .2s allow-discrete; }
+@starting-style { .contact[open]::backdrop { background: rgba(11, 31, 51, 0); } }
+.contact form { position: relative; }
+.contact h2 { font-size: clamp(2rem, 1.6rem + 1.4vw, 2.5rem); padding-right: 40px; margin-bottom: 12px; }
+.contact form > p:not(.status) { margin-bottom: 24px; }
+.contact label { display: block; margin-bottom: 16px; font-size: var(--step-small); font-weight: 500; }
+.contact input, .contact textarea { display: block; width: 100%; margin-top: 6px; border: 0; border-radius: var(--radius); background: var(--surface); color: var(--ink); font: 400 var(--step-body)/1.4 "Work Sans", system-ui, sans-serif; padding: 10px 12px; resize: vertical; transition: background-color .2s ease; }
+.contact input:focus-visible, .contact textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; background: var(--paper); }
+.contact .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; } /* taste-skill-ignore: visually hidden honeypot, not a rule */
+.contact .status { min-height: 1.55em; font-size: var(--step-small); margin-bottom: 8px; }
+.contact .status.error { color: #b3261e; }
+.contact .form-actions { display: flex; justify-content: flex-end; }
+.contact .btn { border: 0; cursor: pointer; font-family: inherit; }
+.contact .btn:disabled { opacity: .6; cursor: progress; }
+.contact .x { position: absolute; top: -12px; right: -12px; display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius); transition: background-color .15s ease; }
+.contact .x .ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.contact .x:hover { background: var(--surface); }
+.tiles details[open] a { color: #fff; }
 
 /* Entrances: hidden only when the script runs, and only until it marks them */
 .js [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
@@ -275,6 +307,11 @@ h2 { font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem); }
   .foot nav { gap: 8px 24px; }
   .foot nav { justify-content: start; }
   .foot-r { text-align: right; }
+}
+
+@media (max-width: 480px) {
+  .top { gap: 12px; }
+  .wordmark { font-size: 0; gap: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

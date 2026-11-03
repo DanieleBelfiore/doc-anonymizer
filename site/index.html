@@ -3,9 +3,173 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Doc Anonymizer: dati personali fuori dai documenti, senza internet</title>
-<meta name="description" content="App per macOS, Windows e Linux che trova e oscura i dati personali nei documenti italiani (PDF, DOCX, TXT) con un modello di IA che gira solo sul tuo computer.">
+<title data-en="Doc Anonymizer: redact personal data in documents offline">Doc Anonymizer: anonimizza i documenti italiani offline</title>
+<meta name="description" content="App gratuita e open source per macOS, Windows e Linux: trova e oscura i dati personali nei documenti italiani (PDF, DOCX, TXT) con un’IA che gira offline." data-en-content="Free, open-source app for macOS, Windows and Linux that finds and redacts personal data in Italian documents (PDF, DOCX, TXT) with an AI that runs offline.">
+<link rel="canonical" href="https://doc-anonymizer.danielebelfiore.dev/">
+<meta name="theme-color" content="#f3f6f9">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://doc-anonymizer.danielebelfiore.dev/">
+<meta property="og:site_name" content="Doc Anonymizer">
+<meta property="og:locale" content="it_IT">
+<meta property="og:locale:alternate" content="en_GB">
+<meta property="og:title" content="Doc Anonymizer: anonimizza i documenti italiani offline">
+<meta property="og:description" content="App gratuita e open source per macOS, Windows e Linux: trova e oscura i dati personali nei documenti italiani (PDF, DOCX, TXT) con un’IA che gira offline.">
+<meta property="og:image" content="https://doc-anonymizer.danielebelfiore.dev/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="La pagina di Doc Anonymizer: il titolo “Togli i nomi. Tieni il documento.” accanto a un referto con i dati personali oscurati">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Doc Anonymizer: anonimizza i documenti italiani offline">
+<meta name="twitter:description" content="App gratuita e open source per macOS, Windows e Linux: trova e oscura i dati personali nei documenti italiani (PDF, DOCX, TXT) con un’IA che gira offline.">
+<meta name="twitter:image" content="https://doc-anonymizer.danielebelfiore.dev/og-image.jpg">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://doc-anonymizer.danielebelfiore.dev/#website",
+   "url": "https://doc-anonymizer.danielebelfiore.dev/",
+   "name": "Doc Anonymizer",
+   "description": "App gratuita e open source per macOS, Windows e Linux: trova e oscura i dati personali nei documenti italiani (PDF, DOCX, TXT) con un’IA che gira offline.",
+   "inLanguage": [
+    "it",
+    "en"
+   ],
+   "publisher": {
+    "@id": "https://doc-anonymizer.danielebelfiore.dev/#author"
+   }
+  },
+  {
+   "@type": "SoftwareApplication",
+   "@id": "https://doc-anonymizer.danielebelfiore.dev/#app",
+   "name": "Doc Anonymizer",
+   "url": "https://doc-anonymizer.danielebelfiore.dev/",
+   "description": "App gratuita e open source per macOS, Windows e Linux: trova e oscura i dati personali nei documenti italiani (PDF, DOCX, TXT) con un’IA che gira offline.",
+   "applicationCategory": "UtilitiesApplication",
+   "operatingSystem": "macOS 11+, Windows 10/11, Linux (64-bit)",
+   "fileFormat": [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "text/plain"
+   ],
+   "featureList": [
+    "Funziona offline: il modello di IA gira sul computer con Ollama",
+    "Trova nomi, indirizzi, telefoni, email, codici fiscali e partite IVA, enti, date di nascita, IBAN, documenti d’identità, targhe",
+    "Oscura il testo nei PDF rimuovendolo dal file, con OCR per le scansioni",
+    "Elabora cartelle intere di PDF, DOCX e TXT lasciando intatti gli originali"
+   ],
+   "memoryRequirements": "8 GB RAM (16 GB consigliati)",
+   "storageRequirements": "10 GB liberi su disco",
+   "downloadUrl": "https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest",
+   "license": "https://opensource.org/licenses/MIT",
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+   },
+   "image": "https://doc-anonymizer.danielebelfiore.dev/og-image.jpg",
+   "screenshot": "https://doc-anonymizer.danielebelfiore.dev/og-image.jpg",
+   "sameAs": [
+    "https://github.com/DanieleBelfiore/doc-anonymizer"
+   ],
+   "author": {
+    "@id": "https://doc-anonymizer.danielebelfiore.dev/#author"
+   },
+   "isPartOf": {
+    "@id": "https://doc-anonymizer.danielebelfiore.dev/#website"
+   }
+  },
+  {
+   "@type": "Person",
+   "@id": "https://doc-anonymizer.danielebelfiore.dev/#author",
+   "name": "Daniele Belfiore",
+   "sameAs": [
+    "https://www.linkedin.com/in/danielebelfiore",
+    "https://github.com/DanieleBelfiore"
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://doc-anonymizer.danielebelfiore.dev/#faq",
+   "url": "https://doc-anonymizer.danielebelfiore.dev/",
+   "inLanguage": "it",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "È davvero offline?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Sì, per i documenti. L’app va in rete solo per due cose che non li riguardano: scaricare il modello di IA la prima volta e controllare all’avvio se esiste una versione nuova."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Che computer serve?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Windows 10 o 11, macOS 11 o successivo, oppure un Linux a 64 bit. Servono 8 GB di RAM (16 consigliati) e circa 10 GB liberi su disco. Va bene qualsiasi processore a 64 bit, anche Apple Silicon. La scheda video non serve."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Quanto ci mette?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Qualche secondo a pagina su un computer recente. Dipende dal processore: il modello lavora sulla CPU."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Trova proprio tutto?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Trova molto, ma non è infallibile: è un modello piccolo che lavora in locale. Codice fiscale e data di nascita hanno un controllo in più basato su regole fisse. Prima di condividere un documento delicato, dagli comunque un’occhiata."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Funziona con documenti in inglese?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "È pensato per l’italiano: le istruzioni al modello e i controlli automatici sono scritti per documenti e formati italiani. Su altre lingue i risultati non sono stati verificati."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Anche i PDF scansionati?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Sì. Se una pagina non contiene testo, l’app la legge con l’OCR in italiano e oscura le parole direttamente nell’immagine."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Ho un’altra domanda",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Scrivimi dal modulo di contatto: ti rispondo per email appena posso."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Quanto costa?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Niente. Doc Anonymizer è open source con licenza MIT. Il modello di IA si scarica dall’app al primo avvio."
+     }
+    }
+   ],
+   "isPartOf": {
+    "@id": "https://doc-anonymizer.danielebelfiore.dev/#website"
+   }
+  }
+ ]
+}
+</script>
 <link rel="preload" href="fonts/work-sans-latin-300-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/work-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
@@ -18,45 +182,47 @@
 
 <header class="top">
   <a class="wordmark" href="#main"><img src="logo.svg" alt="" width="28" height="28">Doc Anonymizer</a>
-  <nav aria-label="Principale">
-    <a href="#come">Come funziona</a>
-    <a href="#app">L’app</a>
-    <a href="#domande">Domande</a>
+  <nav aria-label="Principale" data-en-aria-label="Main">
+    <a href="#come" data-en="How it works">Come funziona</a>
+    <a href="#app" data-en="The app">L’app</a>
+    <a href="#domande" data-en="Questions">Domande</a>
+    <a href="#contatti" data-contact data-en="Contact">Contatti</a>
     <a class="gh" href="https://github.com/DanieleBelfiore/doc-anonymizer" aria-label="GitHub"><svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
   </nav>
-  <a class="btn" href="#scarica"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Scarica</a>
+  <button class="lang" type="button" id="lang" aria-label="Read in English" data-en-aria-label="Leggi in italiano" data-en="&lt;svg class=&quot;flag&quot; viewBox=&quot;0 0 3 2&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect width=&quot;1&quot; height=&quot;2&quot; fill=&quot;#009246&quot;/&gt;&lt;rect x=&quot;1&quot; width=&quot;1&quot; height=&quot;2&quot; fill=&quot;#fff&quot;/&gt;&lt;rect x=&quot;2&quot; width=&quot;1&quot; height=&quot;2&quot; fill=&quot;#CE2B37&quot;/&gt;&lt;/svg&gt;IT"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><clipPath id="uk-s"><path d="M0,0 v30 h60 v-30 z"/></clipPath><clipPath id="uk-t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><g clip-path="url(#uk-s)"><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-t)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></g></svg>EN</button>
+  <a class="btn" href="#scarica"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg><span data-en="Download">Scarica</span></a>
 </header>
 
 <main id="main">
 
 <section class="hero" aria-labelledby="hero-h">
   <div class="hero-copy">
-    <h1 id="hero-h" data-reveal>Togli i nomi.<br> Tieni il documento.</h1>
-    <p class="lead" data-reveal>Doc Anonymizer è un’app per Mac, Windows e Linux. Trova e oscura i dati personali nei documenti italiani con un’IA che gira solo sul tuo computer.</p>
+    <h1 id="hero-h" data-reveal data-en="Remove the names.&lt;br&gt; Keep the document.">Togli i nomi.<br> Tieni il documento.</h1>
+    <p class="lead" data-reveal data-en="Doc Anonymizer is an app for Mac, Windows and Linux. It finds and redacts personal data in Italian documents with an AI that runs only on your computer.">Doc Anonymizer è un’app per Mac, Windows e Linux. Trova e oscura i dati personali nei documenti italiani con un’IA che gira solo sul tuo computer.</p>
     <div class="actions" data-reveal>
-      <a class="btn" href="#scarica"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Scarica</a>
-      <a class="arrow" href="#come">Guarda come funziona</a>
+      <a class="btn" href="#scarica"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg><span data-en="Download">Scarica</span></a>
+      <a class="arrow" href="#come" data-en="See how it works">Guarda come funziona</a>
     </div>
   </div>
 
   <div class="doc" id="demo" data-ui data-reveal>
     <div class="doc-bar">
       <span class="doc-name">referto_rossi.pdf</span>
-      <div class="seg" role="group" aria-label="Vista del documento">
-        <button type="button" data-view="orig" aria-pressed="false">Originale</button>
-        <button type="button" data-view="anon" aria-pressed="true">Anonimizzato</button>
+      <div class="seg" role="group" aria-label="Vista del documento" data-en-aria-label="Document view">
+        <button type="button" data-view="orig" aria-pressed="false" data-en="Original">Originale</button>
+        <button type="button" data-view="anon" aria-pressed="true" data-en="Anonymized">Anonimizzato</button>
       </div>
     </div>
-    <div class="chips" role="group" aria-label="Categorie da oscurare">
-      <button type="button" data-type="PERSON" aria-pressed="true">Nomi <b>2</b></button>
-      <button type="button" data-type="FISCAL_ID" aria-pressed="true">Codice fiscale <b>1</b></button>
-      <button type="button" data-type="DATE_OF_BIRTH" aria-pressed="true">Data di nascita <b>1</b></button>
-      <button type="button" data-type="ADDRESS" aria-pressed="true">Indirizzi <b>1</b></button>
-      <button type="button" data-type="PHONE" aria-pressed="true">Telefoni <b>1</b></button>
+    <div class="chips" role="group" aria-label="Categorie da oscurare" data-en-aria-label="Categories to redact">
+      <button type="button" data-type="PERSON" aria-pressed="true" data-en="Names &lt;b&gt;2&lt;/b&gt;">Nomi <b>2</b></button>
+      <button type="button" data-type="FISCAL_ID" aria-pressed="true" data-en="Tax code &lt;b&gt;1&lt;/b&gt;">Codice fiscale <b>1</b></button>
+      <button type="button" data-type="DATE_OF_BIRTH" aria-pressed="true" data-en="Date of birth &lt;b&gt;1&lt;/b&gt;">Data di nascita <b>1</b></button>
+      <button type="button" data-type="ADDRESS" aria-pressed="true" data-en="Addresses &lt;b&gt;1&lt;/b&gt;">Indirizzi <b>1</b></button>
+      <button type="button" data-type="PHONE" aria-pressed="true" data-en="Phone numbers &lt;b&gt;1&lt;/b&gt;">Telefoni <b>1</b></button>
       <button type="button" data-type="EMAIL" aria-pressed="true">Email <b>1</b></button>
-      <button type="button" data-type="ORG" aria-pressed="true">Organizzazioni <b>1</b></button>
+      <button type="button" data-type="ORG" aria-pressed="true" data-en="Organizations &lt;b&gt;1&lt;/b&gt;">Organizzazioni <b>1</b></button>
     </div>
-    <article class="paper" aria-label="Referto di laboratorio di esempio">
+    <article class="paper" lang="it" aria-label="Referto di laboratorio di esempio" data-en-aria-label="Sample lab report">
       <p class="lab"><span class="pii on" data-type="ORG"><span class="o">Laboratorio Analisi San Frediano s.r.l.</span><span class="t" aria-hidden="true">[ORG]</span></span><br>
       <span class="pii on" data-type="ADDRESS"><span class="o">Via Guelfa 41, 50129 Firenze</span><span class="t" aria-hidden="true">[ADDRESS]</span></span> · Tel. <span class="pii on" data-type="PHONE"><span class="o">055 238 1947</span><span class="t" aria-hidden="true">[PHONE]</span></span></p>
       <dl class="who">
@@ -82,52 +248,52 @@
 </section>
 
 <section class="archive" aria-labelledby="archive-h">
-  <h2 id="archive-h" data-reveal>Ogni pratica è piena di nomi</h2>
+  <h2 id="archive-h" data-reveal data-en="Every case file is full of names">Ogni pratica è piena di nomi</h2>
   <figure class="archive-pic" data-reveal>
-    <img src="assets/archivio-pescia.jpg" width="1800" height="1259" alt="Scaffali dell’Archivio di Stato di Pescia: faldoni di carta legati con nastri, con nomi e anni scritti a mano sul dorso" loading="lazy" decoding="async">
+    <img src="assets/archivio-pescia.jpg" width="1800" height="1259" alt="Scaffali dell’Archivio di Stato di Pescia: faldoni di carta legati con nastri, con nomi e anni scritti a mano sul dorso" data-en-alt="Shelves in the State Archive of Pescia: paper folders tied with ribbons, with names and years handwritten on the spines" loading="lazy" decoding="async">
   </figure>
-  <p class="statement" data-reveal>Referti, contratti, verbali, buste paga. Prima di girare un documento a un consulente, a un collega o a un altro programma di IA, quei nomi vanno tolti. Farlo a mano richiede ore e qualcosa sfugge sempre.</p>
+  <p class="statement" data-reveal data-en="Medical reports, contracts, minutes, payslips. Before you pass a document to a consultant, a colleague or another AI tool, those names have to go. Doing it by hand takes hours, and something always slips through.">Referti, contratti, verbali, buste paga. Prima di girare un documento a un consulente, a un collega o a un altro programma di IA, quei nomi vanno tolti. Farlo a mano richiede ore e qualcosa sfugge sempre.</p>
 </section>
 
 <section class="offline" id="offline" aria-labelledby="offline-h" data-net="off">
   <div class="offline-copy">
-    <h2 id="offline-h" aria-live="polite">Wi‑Fi spento. Funziona.</h2>
-    <p>Il modello di IA gira sul tuo computer, in locale con Ollama. Prova a spegnere la rete: l’anonimizzazione va avanti uguale, perché i documenti non escono mai dal computer.</p>
+    <h2 id="offline-h" aria-live="polite" data-en="Wi‑Fi off. It works.">Wi‑Fi spento. Funziona.</h2>
+    <p data-en="The AI model runs on your computer, locally with Ollama. Try turning the network off: anonymization carries on just the same, because your documents never leave your computer.">Il modello di IA gira sul tuo computer, in locale con Ollama. Prova a spegnere la rete: l’anonimizzazione va avanti uguale, perché i documenti non escono mai dal computer.</p>
   </div>
   <div class="wifi" data-ui>
     <div class="wifi-row">
       <span class="wifi-name" id="wifi-name">Wi‑Fi</span>
-      <span class="wifi-state" id="wifi-state">Spento</span>
+      <span class="wifi-state" id="wifi-state" data-en="Off">Spento</span>
     </div>
     <button class="switch" id="wifi" type="button" role="switch" aria-checked="false" aria-labelledby="wifi-name"><span class="knob"></span></button>
   </div>
 </section>
 
 <section class="how" id="come" aria-labelledby="how-h">
-  <h2 id="how-h" data-reveal>Come funziona</h2>
+  <h2 id="how-h" data-reveal data-en="How it works">Come funziona</h2>
   <ol class="steps">
     <li class="step">
-      <p class="say" data-reveal>Prima, scegli due cartelle: quella dei documenti e quella dove salvare le copie anonime.</p>
+      <p class="say" data-reveal data-en="First, pick two folders: the one with your documents and the one where the anonymized copies go.">Prima, scegli due cartelle: quella dei documenti e quella dove salvare le copie anonime.</p>
       <div class="call" data-reveal>
         <div class="ui-card" data-ui>
           <span class="ui-h"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Source Folder</span>
-          <span class="ui-field">/Users/giulia/Documenti/Pratiche 2026</span>
+          <span class="ui-field" lang="it">/Users/giulia/Documenti/Pratiche 2026</span>
           <span class="ui-h"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Destination Folder</span>
-          <span class="ui-field">/Users/giulia/Documenti/Pratiche anonime</span>
+          <span class="ui-field" lang="it">/Users/giulia/Documenti/Pratiche anonime</span>
         </div>
       </div>
       <div class="resp" data-reveal>
-        <ul class="ui-files" data-ui aria-label="Documenti trovati nella cartella">
-          <li><span>referto_rossi.pdf</span><span>2 pagine</span></li>
-          <li class="sel"><span>contratto_affitto.docx</span><span>5 pagine</span></li>
-          <li><span>verbale_assemblea.pdf</span><span>6 pagine</span></li>
-          <li><span>busta_paga_ottobre.pdf</span><span>1 pagina, scansione</span></li>
+        <ul class="ui-files" data-ui aria-label="Documenti trovati nella cartella" data-en-aria-label="Documents found in the folder">
+          <li><span>referto_rossi.pdf</span><span data-en="2 pages">2 pagine</span></li>
+          <li class="sel"><span>contratto_affitto.docx</span><span data-en="5 pages">5 pagine</span></li>
+          <li><span>verbale_assemblea.pdf</span><span data-en="6 pages">6 pagine</span></li>
+          <li><span>busta_paga_ottobre.pdf</span><span data-en="1 page, scanned">1 pagina, scansione</span></li>
           <li><span>note_colloquio.txt</span><span>3 KB</span></li>
         </ul>
       </div>
     </li>
     <li class="step">
-      <p class="say" data-reveal>Poi premi Start. L’app legge un file alla volta e ti dice a che punto è.</p>
+      <p class="say" data-reveal data-en="Then press Start. The app reads one file at a time and tells you how far along it is.">Poi premi Start. L’app legge un file alla volta e ti dice a che punto è.</p>
       <div class="call" data-reveal>
         <div class="ui-start" data-ui><span class="ui-btn">Start <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg></span><span class="ui-formats">PDF · DOCX · TXT</span></div>
       </div>
@@ -140,12 +306,12 @@
       </div>
     </li>
     <li class="step">
-      <p class="say" data-reveal>Alla fine, apri la cartella delle copie. Ogni dato trovato è sostituito dalla sua etichetta.</p>
+      <p class="say" data-reveal data-en="When it’s done, open the folder with the copies. Every piece of data it found is replaced by its label.">Alla fine, apri la cartella delle copie. Ogni dato trovato è sostituito dalla sua etichetta.</p>
       <div class="resp wide" data-reveal>
         <div class="ui-out" data-ui>
-          <div class="ui-out-bar"><span>contratto_affitto.docx</span><span class="ui-done">Done! 5 di 5 documenti</span></div>
-          <p>Il sottoscritto <mark>[NAME]</mark>, nato il <mark>[DATE_OF_BIRTH]</mark>, codice fiscale <mark>[FISCAL_ID]</mark>, proprietario dell’immobile in <mark>[ADDRESS]</mark>, concede in locazione a <mark>[NAME]</mark> l’appartamento al secondo piano, composto da tre vani e servizi.</p>
-          <p>Il canone mensile è di € 850, da versare entro il giorno 5 di ogni mese sul conto <mark>[IBAN]</mark>. Per comunicazioni: <mark>[EMAIL]</mark>, <mark>[PHONE]</mark>.</p>
+          <div class="ui-out-bar"><span>contratto_affitto.docx</span><span class="ui-done" data-en="Done! 5 of 5 documents">Done! 5 di 5 documenti</span></div>
+          <p lang="it">Il sottoscritto <mark>[NAME]</mark>, nato il <mark>[DATE_OF_BIRTH]</mark>, codice fiscale <mark>[FISCAL_ID]</mark>, proprietario dell’immobile in <mark>[ADDRESS]</mark>, concede in locazione a <mark>[NAME]</mark> l’appartamento al secondo piano, composto da tre vani e servizi.</p>
+          <p lang="it">Il canone mensile è di € 850, da versare entro il giorno 5 di ogni mese sul conto <mark>[IBAN]</mark>. Per comunicazioni: <mark>[EMAIL]</mark>, <mark>[PHONE]</mark>.</p>
         </div>
       </div>
     </li>
@@ -153,48 +319,49 @@
 </section>
 
 <section class="app" id="app" aria-labelledby="app-h">
-  <h2 id="app-h" data-reveal>L’app, da vicino</h2>
+  <h2 id="app-h" data-reveal data-en="The app, up close">L’app, da vicino</h2>
   <div class="plate">
     <div class="panel" data-ui id="panel">
       <div class="p-part" data-part="head"><img src="logo.svg" alt="" width="36" height="36"><span><b>Doc Anonymizer</b><small>Protect your sensitive data locally.</small></span></div>
-      <div class="p-part" data-part="src"><span class="ui-h">Source Folder</span><span class="ui-field">…/Pratiche 2026</span></div>
-      <div class="p-part" data-part="dst"><span class="ui-h">Destination Folder</span><span class="ui-field">…/Pratiche anonime</span></div>
+      <div class="p-part" data-part="src"><span class="ui-h">Source Folder</span><span class="ui-field" lang="it">…/Pratiche 2026</span></div>
+      <div class="p-part" data-part="dst"><span class="ui-h">Destination Folder</span><span class="ui-field" lang="it">…/Pratiche anonime</span></div>
       <div class="p-part p-ready" data-part="start"><b>Ready to anonymize</b><small>Configure your folder paths to start processing your documents securely.</small><span class="ui-btn">Start <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg></span></div>
       <div class="p-part p-formats" data-part="formats">PDF · DOCX · TXT</div>
       <div class="p-part p-local" data-part="local"><span class="dot"></span>gemma4:e2b · local engine ready</div>
     </div>
     <ul class="notes notes-l">
-      <li><button type="button" data-part="head"><b>Open source</b><span>Licenza MIT. Il codice è pubblico su GitHub e lo puoi leggere riga per riga.</span></button></li>
-      <li><button type="button" data-part="src"><b>Cartelle intere</b><span>Legge tutti i PDF, DOCX e TXT di una cartella, uno dopo l’altro.</span></button></li>
-      <li><button type="button" data-part="dst"><b>Originali intatti</b><span>Le copie anonime vanno in un’altra cartella. I file di partenza restano come sono.</span></button></li>
+      <li><button type="button" data-part="head"><b>Open source</b><span data-en="MIT license. The code is public on GitHub, and you can read it line by line.">Licenza MIT. Il codice è pubblico su GitHub e lo puoi leggere riga per riga.</span></button></li>
+      <li><button type="button" data-part="src"><b data-en="Whole folders">Cartelle intere</b><span data-en="Reads every PDF, DOCX and TXT file in a folder, one after another.">Legge tutti i PDF, DOCX e TXT di una cartella, uno dopo l’altro.</span></button></li>
+      <li><button type="button" data-part="dst"><b data-en="Originals untouched">Originali intatti</b><span data-en="The anonymized copies go to another folder. Your source files stay as they are.">Le copie anonime vanno in un’altra cartella. I file di partenza restano come sono.</span></button></li>
     </ul>
     <ul class="notes notes-r">
-      <li><button type="button" data-part="start"><b>Dieci tipi di dato</b><span>Nomi, indirizzi, telefoni, email, codici fiscali e partite IVA, enti, date di nascita, IBAN, documenti, targhe.</span></button></li>
-      <li><button type="button" data-part="formats"><b>PDF ripuliti davvero</b><span>Il testo sotto la barra nera viene tolto dal file, non solo coperto. Le scansioni passano dall’OCR.</span></button></li>
-      <li><button type="button" data-part="local"><b>IA sul tuo computer</b><span>Un modello da 7,2 GB, scaricato una volta. Gira sulla CPU, senza scheda video.</span></button></li>
+      <li><button type="button" data-part="start"><b data-en="Ten kinds of data">Dieci tipi di dato</b><span data-en="Names, addresses, phone numbers, emails, tax codes and VAT numbers, organizations, dates of birth, IBANs, ID documents, license plates.">Nomi, indirizzi, telefoni, email, codici fiscali e partite IVA, enti, date di nascita, IBAN, documenti, targhe.</span></button></li>
+      <li><button type="button" data-part="formats"><b data-en="PDFs that are really clean">PDF ripuliti davvero</b><span data-en="The text under the black bar is removed from the file, not just covered. Scans go through OCR.">Il testo sotto la barra nera viene tolto dal file, non solo coperto. Le scansioni passano dall’OCR.</span></button></li>
+      <li><button type="button" data-part="local"><b data-en="AI on your computer">IA sul tuo computer</b><span data-en="A 7.2 GB model, downloaded once. It runs on the CPU, no graphics card needed.">Un modello da 7,2 GB, scaricato una volta. Gira sulla CPU, senza scheda video.</span></button></li>
     </ul>
   </div>
 </section>
 
 <section class="faq" id="domande" aria-labelledby="faq-h">
-  <h2 id="faq-h" data-reveal>Domande</h2>
+  <h2 id="faq-h" data-reveal data-en="Questions">Domande</h2>
   <div class="tiles">
-    <details name="faq" data-reveal open><summary>È davvero offline?</summary><p>Sì, per i documenti. L’app va in rete solo per due cose che non li riguardano: scaricare il modello di IA la prima volta e controllare all’avvio se esiste una versione nuova.</p></details>
-    <details name="faq" data-reveal><summary>Che computer serve?</summary><p>Windows 10 o 11, macOS 11 o successivo, oppure un Linux a 64 bit. Servono 8 GB di RAM (16 consigliati) e circa 10 GB liberi su disco. Va bene qualsiasi processore a 64 bit, anche Apple Silicon. La scheda video non serve.</p></details>
-    <details name="faq" data-reveal><summary>Quanto ci mette?</summary><p>Qualche secondo a pagina su un computer recente. Dipende dal processore: il modello lavora sulla CPU.</p></details>
-    <details name="faq" data-reveal><summary>Trova proprio tutto?</summary><p>Trova molto, ma non è infallibile: è un modello piccolo che lavora in locale. Codice fiscale e data di nascita hanno un controllo in più basato su regole fisse. Prima di condividere un documento delicato, dagli comunque un’occhiata.</p></details>
-    <details name="faq" data-reveal><summary>Funziona con documenti in inglese?</summary><p>È pensato per l’italiano: le istruzioni al modello e i controlli automatici sono scritti per documenti e formati italiani. Su altre lingue i risultati non sono stati verificati.</p></details>
-    <details name="faq" data-reveal><summary>Anche i PDF scansionati?</summary><p>Sì. Se una pagina non contiene testo, l’app la legge con l’OCR in italiano e oscura le parole direttamente nell’immagine.</p></details>
-    <details name="faq" data-reveal><summary>Quanto costa?</summary><p>Niente. Doc Anonymizer è open source con licenza MIT. Il modello di IA si scarica dall’app al primo avvio.</p></details>
+    <details name="faq" data-reveal open><summary data-en="Is it really offline?">È davvero offline?</summary><p data-en="Yes, as far as your documents go. The app only goes online for two things that have nothing to do with them: downloading the AI model the first time and checking for a new version at startup.">Sì, per i documenti. L’app va in rete solo per due cose che non li riguardano: scaricare il modello di IA la prima volta e controllare all’avvio se esiste una versione nuova.</p></details>
+    <details name="faq" data-reveal><summary data-en="What computer do I need?">Che computer serve?</summary><p data-en="Windows 10 or 11, macOS 11 or later, or 64-bit Linux. You need 8 GB of RAM (16 recommended) and about 10 GB of free disk space. Any 64-bit processor works, Apple Silicon included. You don’t need a graphics card.">Windows 10 o 11, macOS 11 o successivo, oppure un Linux a 64 bit. Servono 8 GB di RAM (16 consigliati) e circa 10 GB liberi su disco. Va bene qualsiasi processore a 64 bit, anche Apple Silicon. La scheda video non serve.</p></details>
+    <details name="faq" data-reveal><summary data-en="How long does it take?">Quanto ci mette?</summary><p data-en="A few seconds per page on a recent computer. It depends on the processor, since the model runs on the CPU.">Qualche secondo a pagina su un computer recente. Dipende dal processore: il modello lavora sulla CPU.</p></details>
+    <details name="faq" data-reveal><summary data-en="Does it catch everything?">Trova proprio tutto?</summary><p data-en="It catches a lot, but it isn’t infallible: it’s a small model running locally. Tax codes and dates of birth get an extra check based on fixed rules. Before you share a sensitive document, look it over anyway.">Trova molto, ma non è infallibile: è un modello piccolo che lavora in locale. Codice fiscale e data di nascita hanno un controllo in più basato su regole fisse. Prima di condividere un documento delicato, dagli comunque un’occhiata.</p></details>
+    <details name="faq" data-reveal><summary data-en="Does it work with English documents?">Funziona con documenti in inglese?</summary><p data-en="It’s built for Italian: the model’s instructions and the automatic checks are written for Italian documents and formats. Results in other languages haven’t been tested.">È pensato per l’italiano: le istruzioni al modello e i controlli automatici sono scritti per documenti e formati italiani. Su altre lingue i risultati non sono stati verificati.</p></details>
+    <details name="faq" data-reveal><summary data-en="Scanned PDFs too?">Anche i PDF scansionati?</summary><p data-en="Yes. If a page has no text, the app reads it with Italian OCR and redacts the words right in the image.">Sì. Se una pagina non contiene testo, l’app la legge con l’OCR in italiano e oscura le parole direttamente nell’immagine.</p></details>
+    <details name="faq" data-reveal><summary data-en="I have another question">Ho un’altra domanda</summary><p data-en="Write to me through the &lt;a href=&quot;#contatti&quot; data-contact&gt;contact form&lt;/a&gt; and I’ll reply by email as soon as I can.">Scrivimi dal <a href="#contatti" data-contact>modulo di contatto</a>: ti rispondo per email appena posso.</p></details>
+    <details name="faq" data-reveal><summary data-en="How much does it cost?">Quanto costa?</summary><p data-en="Nothing. Doc Anonymizer is open source under the MIT license. The app downloads the AI model on first launch.">Niente. Doc Anonymizer è open source con licenza MIT. Il modello di IA si scarica dall’app al primo avvio.</p></details>
   </div>
 </section>
 
 <section class="cta" id="scarica" aria-labelledby="cta-h">
   <div class="flank flank-pic" aria-hidden="true"><img src="assets/archivio-pescia-verticale.jpg" width="894" height="1400" alt="" loading="lazy" decoding="async"></div>
   <div class="cta-main">
-    <h2 id="cta-h" data-reveal>Scarica Doc Anonymizer</h2>
-    <p data-reveal>Per macOS (.dmg), Windows (.exe) e Linux (.AppImage). Al primo avvio scarica il modello di IA da 7,2 GB, poi lavora senza rete.</p>
-    <a class="btn btn-light" href="https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest" data-reveal><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>Vai all’ultima versione</a>
+    <h2 id="cta-h" data-reveal data-en="Download Doc Anonymizer">Scarica Doc Anonymizer</h2>
+    <p data-reveal data-en="For macOS (.dmg), Windows (.exe) and Linux (.AppImage). On first launch it downloads the 7.2 GB AI model, then works offline.">Per macOS (.dmg), Windows (.exe) e Linux (.AppImage). Al primo avvio scarica il modello di IA da 7,2 GB, poi lavora senza rete.</p>
+    <a class="btn btn-light" href="https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest" data-reveal><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg><span data-en="Get the latest version">Vai all’ultima versione</span></a>
   </div>
   <div class="flank flank-color" aria-hidden="true"></div>
 </section>
@@ -202,16 +369,33 @@
 </main>
 
 <footer class="foot">
-  <span>Doc Anonymizer, dati personali fuori dai documenti</span>
-  <nav aria-label="Link del progetto">
+  <span data-en="Doc Anonymizer, personal data out of your documents">Doc Anonymizer, dati personali fuori dai documenti</span>
+  <nav aria-label="Link del progetto" data-en-aria-label="Project links">
     <a href="https://github.com/DanieleBelfiore/doc-anonymizer">GitHub</a>
-    <a href="https://github.com/DanieleBelfiore/doc-anonymizer/releases">Versioni</a>
-    <a href="https://github.com/DanieleBelfiore/doc-anonymizer/issues">Segnala un problema</a>
-    <a href="https://github.com/DanieleBelfiore/doc-anonymizer/blob/main/LICENSE">Licenza MIT</a>
+    <a href="https://github.com/DanieleBelfiore/doc-anonymizer/releases" data-en="Releases">Versioni</a>
+    <a href="https://github.com/DanieleBelfiore/doc-anonymizer/issues" data-en="Report an issue">Segnala un problema</a>
+    <a href="https://github.com/DanieleBelfiore/doc-anonymizer/blob/main/LICENSE" data-en="MIT license">Licenza MIT</a>
+    <a href="#contatti" data-contact data-en="Contact me">Contattami</a>
   </nav>
-  <span class="foot-r">© <span id="year">2026</span> Daniele Belfiore</span>
-  <p class="credits">Foto: “Archivio di stato di Pescia (sezione di PT), interno, scaffali con faldoni 01” e “08”, di Sailko, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, via <a href="https://commons.wikimedia.org/w/index.php?curid=72756009">Wikimedia Commons</a> (<a href="https://commons.wikimedia.org/w/index.php?curid=72756018">seconda foto</a>). Il referto e i dati negli esempi sono inventati.</p>
+  <span class="foot-r">© <span id="year">2026</span> <a class="li-link" href="https://www.linkedin.com/in/danielebelfiore" target="_blank" rel="noopener">Daniele Belfiore</a> <a class="li-link" href="https://www.linkedin.com/in/danielebelfiore" target="_blank" rel="noopener" aria-label="LinkedIn"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="2" fill="#fff"/><path fill="#0A66C2" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></span>
+  <p class="credits" data-en="Photos: “Archivio di stato di Pescia (sezione di PT), interno, scaffali con faldoni 01” and “08”, by Sailko, &lt;a href=&quot;https://creativecommons.org/licenses/by-sa/4.0/&quot;&gt;CC BY-SA 4.0&lt;/a&gt;, via &lt;a href=&quot;https://commons.wikimedia.org/w/index.php?curid=72756009&quot;&gt;Wikimedia Commons&lt;/a&gt; (&lt;a href=&quot;https://commons.wikimedia.org/w/index.php?curid=72756018&quot;&gt;second photo&lt;/a&gt;). The report and the data in the examples are made up.">Foto: “Archivio di stato di Pescia (sezione di PT), interno, scaffali con faldoni 01” e “08”, di Sailko, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, via <a href="https://commons.wikimedia.org/w/index.php?curid=72756009">Wikimedia Commons</a> (<a href="https://commons.wikimedia.org/w/index.php?curid=72756018">seconda foto</a>). Il referto e i dati negli esempi sono inventati.</p>
 </footer>
+
+<!-- Without JavaScript the links open this through :target; the form posts to netlify/functions/contact.mjs. -->
+<dialog class="contact" id="contatti" aria-labelledby="contact-h">
+  <form method="post" action="/api/contact" id="contact-form">
+    <a class="x" href="#" data-close aria-label="Chiudi" data-en-aria-label="Close"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></a>
+    <h2 id="contact-h" data-en="Write to me">Scrivimi</h2>
+    <p data-en="Got a question about Doc Anonymizer, or want to know more? I’ll reply by email.">Hai una domanda su Doc Anonymizer o vuoi saperne di più? Ti rispondo per email.</p>
+    <label><span data-en="Name">Nome</span><input name="name" required maxlength="100" autocomplete="name"></label>
+    <label>Email<input name="email" type="email" required maxlength="254" autocomplete="email"></label>
+    <label><span data-en="Message">Messaggio</span><textarea name="message" rows="5" required maxlength="3000"></textarea></label>
+    <!-- Only bots fill this in. -->
+    <label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+    <p class="status" id="contact-status" role="status" aria-live="polite"></p>
+    <div class="form-actions"><button class="btn" type="submit" data-en="Send">Invia</button></div>
+  </form>
+</dialog>
 
 </body>
 </html>

@@ -1,0 +1,33 @@
+# Doc Anonymizer
+
+> App desktop gratuita e open source (licenza MIT) per macOS, Windows e Linux. Trova e oscura i dati personali nei documenti italiani (PDF, DOCX, TXT) con un modello di IA che gira sul computer, senza mandare i documenti in rete.
+
+## Cos'è
+
+- Legge una cartella di PDF, DOCX e TXT e salva in un'altra cartella le copie anonime: ogni dato trovato è sostituito da un'etichetta come [NAME] o [FISCAL_ID]. Gli originali restano intatti.
+- Dati riconosciuti: nomi, indirizzi, telefoni, email, codici fiscali e partite IVA, enti e aziende, date di nascita, IBAN, documenti d'identità, targhe.
+- Nei PDF il testo oscurato viene rimosso dal file, non solo coperto. Le pagine scansionate passano dall'OCR in italiano.
+- Il riconoscimento usa un modello di IA locale (gemma4:e2b tramite Ollama, circa 7,2 GB, scaricato dall'app al primo avvio). Codice fiscale e data di nascita hanno in più un controllo basato su regole fisse.
+- È pensata per documenti in italiano: su altre lingue i risultati non sono verificati. Non è infallibile, quindi un documento delicato va ricontrollato prima di condividerlo.
+
+## Per chi
+
+- Chi deve passare documenti con dati personali (referti, contratti, verbali, buste paga) a consulenti, colleghi o altri strumenti di IA senza esporre quei dati.
+
+## Prezzo, piattaforme e requisiti
+
+- Prezzo: gratis. Codice sorgente pubblico con licenza MIT.
+- Piattaforme: macOS 11 o successivo (.dmg), Windows 10 o 11 (.exe), Linux a 64 bit (.AppImage).
+- Requisiti: 8 GB di RAM (16 consigliati), circa 10 GB liberi su disco, qualsiasi processore a 64 bit (anche Apple Silicon). La scheda video non serve.
+- Rete: serve solo per scaricare il modello la prima volta e per controllare all'avvio se c'è una versione nuova. L'elaborazione dei documenti è offline.
+
+## Link
+
+- [Sito](https://doc-anonymizer.danielebelfiore.dev/): presentazione, demo, domande frequenti e modulo di contatto (in italiano e in inglese).
+- [Download, ultima versione](https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest): gli installer per macOS, Windows e Linux.
+- [Codice sorgente su GitHub](https://github.com/DanieleBelfiore/doc-anonymizer)
+- [Segnala un problema](https://github.com/DanieleBelfiore/doc-anonymizer/issues)
+
+## Autore
+
+- Daniele Belfiore: [LinkedIn](https://www.linkedin.com/in/danielebelfiore), [GitHub](https://github.com/DanieleBelfiore). Contatti dal modulo sul sito: https://doc-anonymizer.danielebelfiore.dev/#contatti

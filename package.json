@@ -14,7 +14,8 @@
     "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
     "build:vite": "vite build",
     "build:electron": "electron-builder",
-    "build": "npm run build:vite && npm run build:electron"
+    "build": "npm run build:vite && npm run build:electron",
+    "test:site": "node --test 'tests/*.test.mjs'"
   },
   "build": {
     "appId": "com.doc.anonymizer",
@@ -40,7 +41,13 @@
       "icon": "public/icon.png",
       "artifactName": "${productName}-${version}.${ext}",
       "extraResources": [
-        { "from": "resources/bin", "to": "bin", "filter": ["**/*"] }
+        {
+          "from": "resources/bin",
+          "to": "bin",
+          "filter": [
+            "**/*"
+          ]
+        }
       ]
     },
     "win": {
@@ -50,7 +57,13 @@
       "icon": "public/icon.png",
       "artifactName": "${productName}-${version}.${ext}",
       "extraResources": [
-        { "from": "resources/bin", "to": "bin", "filter": ["**/*"] }
+        {
+          "from": "resources/bin",
+          "to": "bin",
+          "filter": [
+            "**/*"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -66,8 +79,20 @@
       "category": "Utility",
       "artifactName": "${productName}-${version}.${ext}",
       "extraResources": [
-        { "from": "resources/bin", "to": "bin", "filter": ["**/*"] },
-        { "from": "resources/lib", "to": "lib", "filter": ["**/*"] }
+        {
+          "from": "resources/bin",
+          "to": "bin",
+          "filter": [
+            "**/*"
+          ]
+        },
+        {
+          "from": "resources/lib",
+          "to": "lib",
+          "filter": [
+            "**/*"
+          ]
+        }
       ]
     },
     "dmg": {
@@ -85,6 +110,7 @@
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
+    "@netlify/blobs": "11.1.7",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^24.19.2",
     "@types/react": "^19.0.10",

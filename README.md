@@ -107,6 +107,11 @@ If you want to contribute or build the app yourself, follow these steps:
     ```bash
     python3 -m http.server 4321 --directory site
     ```
+- Italian by default, English behind the IT/EN switch in the header (`data-en` attributes, swapped by `site/main.js`).
+- "Contatti" opens a form that posts to `netlify/functions/contact.mjs`, which mails the message with Resend.
+- Limits: 3 messages per IP in 10 minutes (in memory) and 30 per day overall (a counter in Netlify Blobs, no personal data).
+- Netlify env vars: `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM` (see `.env.example`).
+- Tests: `npm run test:site`.
 
 ## 📄 License
 
