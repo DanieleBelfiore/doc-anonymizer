@@ -102,7 +102,7 @@ If you want to contribute or build the app yourself, follow these steps:
     The app spawns `ollama serve` automatically if it's not already running.
 
 ### Landing page
-- Plain files in `site/`, deployed by Netlify (`netlify.toml`).
+- Plain files in `site/`, deployed to Netlify (`netlify.toml`) by the `deploy` job of `.github/workflows/site.yml`, after the tests.
 - The only build step is `node scripts/site-en.mjs`, which generates `site/en/index.html` from `site/index.html`.
 - Preview it locally:
     ```bash
