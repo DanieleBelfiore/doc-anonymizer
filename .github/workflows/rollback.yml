@@ -1,0 +1,45 @@
+name: Rollback
+
+# Manual rollback: Actions → Rollback → Run workflow. Netlify publishes again an earlier production deploy
+# as it was (files and functions), with no build and no gate. Empty deploy ID = the deploy before the live one;
+# running it again goes one more step back. Deploy IDs: Netlify → Deploys. The next push to main publishes as usual.
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_id:
+        description: Netlify deploy ID to publish again (empty = the one before the live deploy)
+        required: false
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Publish the earlier deploy
+        run: |
+          set -euo pipefail
+          api=https://api.netlify.com/api/v1
+          auth="Authorization: Bearer $NETLIFY_AUTH_TOKEN"
+          target=$DEPLOY_ID
+          if [ -z "$target" ]; then
+            live=$(curl -fsS -H "$auth" "$api/sites/$NETLIFY_SITE_ID" | jq -r .published_deploy.id)
+            target=$(curl -fsS -H "$auth" "$api/sites/$NETLIFY_SITE_ID/deploys?production=true&state=ready&per_page=100" \
+              | jq -r --arg live "$live" 'map(.id) | (index($live) // empty) as $i | .[$i + 1] // empty')
+          fi
+          if ! [[ "$target" =~ ^[0-9a-f]{24}$ ]]; then
+            echo "::error::No deploy to publish (input: '$DEPLOY_ID')"
+            exit 1
+          fi
+          curl -fsS -X POST -H "$auth" "$api/sites/$NETLIFY_SITE_ID/deploys/$target/restore" \
+            | jq -r '"Published again \(.id) from \(.created_at): \(.title // "" | split("\n")[0])"'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+          DEPLOY_ID: ${{ inputs.deploy_id }}

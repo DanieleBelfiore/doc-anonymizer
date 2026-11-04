@@ -58,3 +58,15 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+
+      # Synthetic form check, the same request as repo-audit's weekly one: with the token the email goes
+      # only to delivered@resend.dev and nothing is saved. The server confirms with `x-synthetic-test: on`.
+      - name: Synthetic form check
+        run: |
+          status=$(curl -sS -o /dev/null -D "$RUNNER_TEMP/headers" -w '%{http_code}' -X POST "https://doc-anonymizer.danielebelfiore.dev/api/contact" \
+            -H 'content-type: application/x-www-form-urlencoded' -H 'accept: application/json' -H "x-synthetic-test: $SYNTHETIC_TEST_TOKEN" \
+            --data 'name=Synthetic+Check&email=delivered%40resend.dev&message=Weekly+synthetic+test+of+the+contact+form.')
+          echo "status $status (expected 200), x-synthetic-test: $(grep -i '^x-synthetic-test:' "$RUNNER_TEMP/headers" | cut -d' ' -f2 | tr -d '\r')"
+          test "$status" = 200 && grep -qi '^x-synthetic-test: on' "$RUNNER_TEMP/headers"
+        env:
+          SYNTHETIC_TEST_TOKEN: ${{ secrets.SYNTHETIC_TEST_TOKEN }}
