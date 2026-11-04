@@ -31,4 +31,4 @@
 
 ## Autore
 
-- Daniele Belfiore: [LinkedIn](https://www.linkedin.com/in/danielebelfiore), [GitHub](https://github.com/DanieleBelfiore). Contatti dal modulo sul sito: https://doc-anonymizer.danielebelfiore.dev/#contatti
+- Daniele Belfiore: [sito](https://danielebelfiore.dev), [LinkedIn](https://www.linkedin.com/in/danielebelfiore), [GitHub](https://github.com/DanieleBelfiore). Contatti dal modulo sul sito: https://doc-anonymizer.danielebelfiore.dev/#contatti
