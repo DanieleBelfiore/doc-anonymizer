@@ -152,3 +152,11 @@ Don't extend either pattern to fuzzy judgment categories like `PERSON` or `ORG` 
 **Offline constraint**: no data leaves the machine. The LLM call is local HTTP to `127.0.0.1:11434` (Ollama), never a network request. The model itself is downloaded once (user-triggered, via `pull-engine-model`) and cached under Ollama's local model store afterwards.
 
 **Known limitation / debugging approach**: not every apparent miss is LLM non-determinism — some are reproducible bugs. Before assuming "the model just got unlucky," call `OllamaClient.generate_json` directly with the exact input 2-3 times: if the wrong (or missing) result repeats consistently, it's a prompt gap worth fixing (e.g. the LICENSE_PLATE/DATE_OF_BIRTH type-confusion caught this way — a plate near a "nato il" label was reliably mistagged as a date, 3/3 runs, fixed by an explicit prompt disambiguation), not something a retry or a temperature tweak will paper over. Also test any suspected date/offset issue on both the full document (where multiple similar values compete for the same label) and an isolated snippet — a document that fails whole but succeeds isolated points at context-crowding, not a fundamental misunderstanding.
+
+## Dependencies no other repo uses
+
+`repo-audit` (`stack-check.mjs`) lists dependencies found in one repo only; the reason for each is here.
+
+- `electron` and `electron-builder`: the desktop app and its installers (accepted exception in the stack standard).
+- `react`, `react-dom` and `@vitejs/plugin-react`: the app UI, React since before the standard; it stays until the next desktop app picks one stack.
+- `concurrently`, `wait-on` and `cross-env`: `npm run dev` starts Vite, waits for it, then opens Electron on it, on every OS.
