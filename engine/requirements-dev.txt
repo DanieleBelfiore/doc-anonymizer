@@ -3,3 +3,6 @@
 pyinstaller~=6.22
 # scripts/generate_test_corpus.py
 Pillow~=13.0
+# Engine tests: pytest with the coverage floor (tests/engine/)
+pytest~=9.2
+pytest-cov~=7.1

@@ -1,30 +1,8 @@
-@font-face { font-family: "Work Sans"; font-weight: 300; font-display: swap; src: url(fonts/work-sans-latin-300-normal.woff2) format("woff2"); }
-@font-face { font-family: "Work Sans"; font-weight: 400; font-display: swap; src: url(fonts/work-sans-latin-400-normal.woff2) format("woff2"); }
-@font-face { font-family: "Work Sans"; font-weight: 500; font-display: swap; src: url(fonts/work-sans-latin-500-normal.woff2) format("woff2"); }
+/* Global rules: fonts, reset, base elements, the page blocks and prefers-reduced-motion. Loaded after tokens.css. */
 
-:root {
-  /* Brand: the logo's two blues and its redaction ink */
-  --bg: #f3f6f9;
-  --surface: #e4ebf2;
-  --ink: #0b1f33;
-  --muted: #45576a;
-  --accent: #0a72c2;
-  --accent-press: #085c9e;
-  --sky: #1f9bdb;
-  --paper: #ffffff;
-
-  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
-  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  --step-head: clamp(2.25rem, 1.3rem + 3.6vw, 4.5rem);
-
-  --m: clamp(16px, 3vw, 44px);
-  --gap: clamp(16px, 2vw, 28px);
-  --header: 68px;
-  --section: clamp(96px, 12vw, 200px);
-  --radius: 4px;
-  --ease: cubic-bezier(.16, 1, .3, 1);
-}
+@font-face { font-family: "Work Sans"; font-weight: 300; font-display: swap; src: url(/fonts/work-sans-latin-300-normal.woff2) format("woff2"); }
+@font-face { font-family: "Work Sans"; font-weight: 400; font-display: swap; src: url(/fonts/work-sans-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Work Sans"; font-weight: 500; font-display: swap; src: url(/fonts/work-sans-latin-500-normal.woff2) format("woff2"); }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
@@ -46,7 +24,7 @@ h2 { font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem); }
 .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; background: var(--accent); color: #fff; border-radius: var(--radius); text-decoration: none; font-weight: 500; font-size: var(--step-body); transition: background-color .2s ease, transform .15s var(--ease); }
 .btn:hover { background: var(--accent-press); }
 .btn:active { transform: scale(.97); }
-.btn .ico { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s var(--ease); }
+.btn .ico { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s var(--ease); }
 .btn:hover .ico { transform: translateY(2px); }
 .btn-light { background: var(--paper); color: var(--ink); }
 .btn-light:hover { background: var(--surface); }
@@ -146,7 +124,7 @@ h2 { font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem); }
 
 /* App fragments (data-ui): the real app's slate and sky look */
 [data-ui] .ui-h { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: #1e293b; }
-[data-ui] svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+[data-ui] svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ui-card { display: grid; gap: 8px; font-size: 14px; }
 .ui-card .ui-h svg { color: #0ea5e9; }
 .ui-card .ui-h:nth-of-type(2) svg, .ui-card span:nth-child(3) svg { color: #10b981; }

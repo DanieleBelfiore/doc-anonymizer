@@ -1,6 +1,6 @@
 name: Site
 
-# The public page in site/ and its contact function: tests/*.test.mjs, then the production deploy on Netlify.
+# The public page in site/ and its contact function: tests/*.test.mjs with the coverage floor, then the production deploy on Netlify.
 on:
   push:
     branches: [main]
@@ -23,13 +23,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-node@v7.1.0
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
+      # Node 24 bundles npm 11, which ignores min-release-age in .npmrc.
+      - name: Install npm 12
+        run: npm install -g npm@12
       - run: npm ci
-      - run: npm run test:site
+      - run: npm run test:coverage
 
   # Production deploy on Netlify, only after the tests (Netlify's git builds are off).
   # `netlify build` runs without the token: it reaches only the upload.
@@ -44,13 +47,16 @@ jobs:
     env:
       AWS_LAMBDA_JS_RUNTIME: nodejs24.x
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7.1.0
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
+      # Node 24 bundles npm 11, which ignores min-release-age in .npmrc.
+      - name: Install npm 12
+        run: npm install -g npm@12
       - run: npm ci
       - run: npm install -g --ignore-scripts netlify-cli@27.16.2
       - run: netlify build --offline --context production

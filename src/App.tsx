@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
+import './App.css';
 import
 {
   Shield,
   FolderInput,
   FolderOutput,
   Play,
-  CheckCircle2,
-  Loader2,
+  CircleCheck,
+  LoaderCircle,
   FileText,
   ExternalLink,
-  AlertTriangle,
-  XCircle,
+  TriangleAlert,
+  CircleX,
   Cpu,
   Download
 } from 'lucide-react';
@@ -217,39 +218,39 @@ function App()
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 font-sans">
+    <div className="app">
       {/* Sidebar */}
-      <div className="w-16 flex flex-col items-center py-6 bg-white border-r border-slate-100 shrink-0">
-        <img src="./logo.svg" alt="Doc Anonymizer" className="w-10 h-10" />
+      <div className="app__sidebar">
+        <img src="./logo.svg" alt="Doc Anonymizer" className="app__logo" />
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col p-8 overflow-y-auto">
-        <header className="mb-6 shrink-0">
-          <h1 className="text-3xl font-bold text-slate-800">Doc Anonymizer</h1>
-          <p className="text-slate-500 mt-1 text-sm">Protect your sensitive data locally.</p>
+      <main className="app__main">
+        <header className="app__header">
+          <h1 className="app__title">Doc Anonymizer</h1>
+          <p className="app__subtitle">Protect your sensitive data locally.</p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 shrink-0">
+        <div className="folders">
           {/* Input Folder */}
           <div
             onClick={handleSelectInput}
-            className="glass p-6 rounded-2xl flex flex-col gap-4 cursor-pointer hover:bg-white/80 transition-colors group"
+            className="glass folder-card"
           >
-            <div className="flex items-center gap-3 text-slate-700">
-              <FolderInput className="text-primary-500" size={24} />
-              <h2 className="font-semibold text-lg">Source Folder</h2>
+            <div className="folder-card__head">
+              <FolderInput className="folder-card__icon" size={24} />
+              <h2 className="folder-card__title">Source Folder</h2>
             </div>
-            <div className="relative">
+            <div className="folder-card__field">
               <input
                 type="text"
                 placeholder="Select input folder..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none group-hover:border-primary-500 transition-all cursor-pointer text-sm"
+                className="folder-card__input"
                 value={inputPath}
                 readOnly
               />
               <button
-                className="absolute right-2 top-1.5 btn-secondary !py-1.5 text-xs pointer-events-none"
+                className="btn-secondary folder-card__browse"
               >
                 Browse
               </button>
@@ -259,22 +260,22 @@ function App()
           {/* Output Folder */}
           <div
             onClick={handleSelectOutput}
-            className="glass p-6 rounded-2xl flex flex-col gap-4 cursor-pointer hover:bg-white/80 transition-colors group"
+            className="glass folder-card"
           >
-            <div className="flex items-center gap-3 text-slate-700">
-              <FolderOutput className="text-emerald-500" size={24} />
-              <h2 className="font-semibold text-lg">Destination Folder</h2>
+            <div className="folder-card__head">
+              <FolderOutput className="folder-card__icon folder-card__icon--out" size={24} />
+              <h2 className="folder-card__title">Destination Folder</h2>
             </div>
-            <div className="relative">
+            <div className="folder-card__field">
               <input
                 type="text"
                 placeholder="Select output folder..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none group-hover:border-primary-500 transition-all cursor-pointer text-sm"
+                className="folder-card__input"
                 value={outputPath}
                 readOnly
               />
               <button
-                className="absolute right-2 top-1.5 btn-secondary !py-1.5 text-xs pointer-events-none"
+                className="btn-secondary folder-card__browse"
               >
                 Browse
               </button>
@@ -283,53 +284,53 @@ function App()
         </div>
 
         {errorMessage && (
-          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-3 mb-4 text-sm shrink-0">
-            <XCircle size={16} className="shrink-0" />
+          <div className="alert alert--page">
+            <CircleX size={16} />
             <span>{errorMessage}</span>
-            <button onClick={() => setErrorMessage(null)} className="ml-auto text-red-400 hover:text-red-600">✕</button>
+            <button onClick={() => setErrorMessage(null)} className="alert__close">✕</button>
           </div>
         )}
 
         {/* Status Area */}
-        <div className="flex-1 glass rounded-3xl p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <div className="glass status">
           {status === 'idle' && (
             <>
-              <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 animate-pulse">
+              <div className="status__icon status__icon--idle pulse">
                 <FileText size={40} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Ready to anonymize</h3>
-              <p className="text-slate-500 max-w-sm mb-8 text-sm">
+              <h3 className="status__title">Ready to anonymize</h3>
+              <p className="status__text">
                 Configure your folder paths to start processing your documents securely.
               </p>
 
               {(engineState === 'checking' || engineState === 'starting') && (
-                <div className="flex items-center gap-2 bg-slate-100 text-slate-500 text-sm font-medium rounded-xl px-4 py-3 mb-8">
-                  <Loader2 size={16} className="animate-spin" />
+                <div className="engine-note">
+                  <LoaderCircle size={16} className="spin" />
                   Starting local AI engine...
                 </div>
               )}
 
               {engineState === 'needs_model' && (
-                <div className="flex flex-col items-center gap-3 bg-primary-50 border border-primary-100 rounded-2xl px-6 py-5 mb-8 max-w-sm">
-                  <Cpu className="text-primary-500" size={28} />
-                  <p className="text-sm text-slate-600 text-center">
+                <div className="model-offer">
+                  <Cpu className="model-offer__icon" size={28} />
+                  <p className="model-offer__text">
                     The local AI model ({engineModel}) isn't downloaded yet. This is a one-time download (~7.2GB); everything runs offline afterwards.
                   </p>
-                  <button onClick={handleDownloadModel} className="btn-primary flex items-center gap-2 !py-2 !px-5 text-sm">
+                  <button onClick={handleDownloadModel} className="btn-primary model-offer__button">
                     <Download size={16} /> Download AI model
                   </button>
                 </div>
               )}
 
               {engineState === 'downloading' && (
-                <div className="w-full max-w-sm mb-8">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-sm font-medium text-slate-600 truncate">{pullStatus || 'Downloading...'}</span>
-                    <span className="font-bold text-primary-600 text-sm shrink-0 ml-2">{pullPercentage}%</span>
+                <div className="pull">
+                  <div className="pull__head">
+                    <span className="pull__status">{pullStatus || 'Downloading...'}</span>
+                    <span className="pull__pct">{pullPercentage}%</span>
                   </div>
-                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="progress">
                     <div
-                      className="h-full bg-primary-600 transition-all duration-300 ease-out"
+                      className="progress__bar"
                       style={{ width: `${pullPercentage}%` }}
                     ></div>
                   </div>
@@ -337,82 +338,82 @@ function App()
               )}
 
               {engineState === 'error' && (
-                <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-3 mb-8 text-sm max-w-sm">
-                  <XCircle size={16} className="shrink-0" />
+                <div className="alert alert--engine">
+                  <CircleX size={16} />
                   <span>{engineError || 'Local AI engine unavailable.'}</span>
                 </div>
               )}
 
               <button
                 onClick={handleStart}
-                className="btn-primary flex items-center gap-2 py-4 px-10 rounded-2xl text-lg group"
+                className="btn-primary start"
                 disabled={!inputPath || !outputPath || engineState !== 'ready'}
               >
-                Start <Play size={20} className="group-hover:translate-x-1 transition-transform" />
+                Start <Play size={20} className="start__icon" />
               </button>
 
-              <div className="mt-6 flex items-center gap-4 text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+              <div className="formats">
                 <span>PDF</span>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <span className="formats__dot"></span>
                 <span>DOCX</span>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <span className="formats__dot"></span>
                 <span>TXT</span>
               </div>
             </>
           )}
 
           {status === 'processing' && (
-            <div className="w-full max-w-md">
-              <div className="flex justify-between items-end mb-4">
-                <div className="text-left">
-                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <Loader2 className="animate-spin text-primary-500" size={20} />
+            <div className="processing">
+              <div className="processing__head">
+                <div className="processing__info">
+                  <h3 className="processing__title">
+                    <LoaderCircle className="spin processing__spinner" size={20} />
                     Processing documents...
                   </h3>
-                  <p className="text-sm text-slate-500">Current file: {currentFile || 'Initializing...'}</p>
+                  <p className="processing__file">Current file: {currentFile || 'Initializing...'}</p>
                 </div>
-                <span className="font-bold text-primary-600">{progress}%</span>
+                <span className="processing__pct">{progress}%</span>
               </div>
-              <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div className="progress progress--lg">
                 <div
-                  className="h-full bg-primary-600 transition-all duration-300 ease-out shadow-lg shadow-primary-200"
+                  className="progress__bar progress__bar--glow"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
-              <div className="flex justify-center mt-6">
-                <button onClick={handleCancel} className="btn-secondary !py-2 !px-6 text-sm">
+              <div className="processing__actions">
+                <button onClick={handleCancel} className="btn-secondary processing__cancel">
                   Cancel
                 </button>
               </div>
-              <p className="text-[10px] text-slate-400 mt-6 flex items-center justify-center gap-1 uppercase tracking-wider font-bold">
+              <p className="processing__note">
                 <Shield size={12} /> 100% Local Processing. Your documents never leave your computer.
               </p>
             </div>
           )}
 
           {status === 'done' && (
-            <div className="animate-in zoom-in duration-300 w-full max-w-md">
-              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-4 mx-auto">
-                <CheckCircle2 size={44} />
+            <div className="done">
+              <div className="status__icon status__icon--done">
+                <CircleCheck size={44} />
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">Done!</h3>
-              <p className="text-slate-500 max-w-sm mb-6 mx-auto text-sm">
+              <h3 className="status__title status__title--done">Done!</h3>
+              <p className="status__text status__text--done">
                 All documents have been processed in the destination folder.
               </p>
               {warnings.length > 0 && (
-                <div className="mb-6 text-left bg-amber-50 border border-amber-200 rounded-2xl p-4">
-                  <div className="flex items-center gap-2 text-amber-700 font-semibold text-sm mb-2">
-                    <AlertTriangle size={14} />
+                <div className="warnings">
+                  <div className="warnings__head">
+                    <TriangleAlert size={14} />
                     {warnings.length} file{warnings.length > 1 ? 's' : ''} skipped
                   </div>
-                  <ul className="text-xs text-amber-600 space-y-1">
+                  <ul className="warnings__list">
                     {warnings.map((w, i) => (
-                      <li key={i} className="truncate"><span className="font-medium">{w.file}</span>: {w.error}</li>
+                      <li key={i} className="warnings__item"><span className="warnings__file">{w.file}</span>: {w.error}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              <div className="flex gap-4 justify-center">
+              <div className="done__actions">
                 <button onClick={reset} className="btn-secondary">Go Back</button>
                 <button
                   onClick={() => window.electronAPI.openFolder(outputPath)}
@@ -425,12 +426,12 @@ function App()
           )}
         </div>
 
-        <footer className="mt-8 flex justify-between items-center text-[10px] text-slate-400 px-4">
+        <footer className="app__footer">
           <div>Version {version}</div>
           {newVersion && (
             <button
               onClick={() => window.electronAPI.openExternal('https://github.com/DanieleBelfiore/doc-anonymizer/releases/latest')}
-              className="flex items-center gap-1 text-primary-600 font-bold hover:underline"
+              className="update-link"
             >
               <ExternalLink size={10} /> New version available: v{newVersion}
             </button>

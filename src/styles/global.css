@@ -1,0 +1,99 @@
+/* Global rules: reset, base elements and the utilities shared by components. Imported once, by src/main.tsx. */
+
+/* Reset */
+*, ::before, ::after, ::backdrop {
+  box-sizing: border-box;
+  border: 0 solid;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  line-height: 1.5;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body ::selection, body::selection {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-900);
+}
+
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+ol, ul { list-style: none; }
+img, svg { display: block; vertical-align: middle; }
+img { max-width: 100%; height: auto; }
+
+button, input {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  opacity: 1;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button { appearance: button; }
+::placeholder { opacity: 1; color: color-mix(in oklab, currentcolor 50%, transparent); }
+[hidden]:where(:not([hidden="until-found"])) { display: none !important; }
+
+/* Shared utilities */
+.glass {
+  border: 1px solid color-mix(in oklab, var(--color-white) 20%, transparent);
+  background-color: color-mix(in oklab, var(--color-white) 70%, transparent);
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(var(--blur-md));
+}
+
+.btn-primary, .btn-secondary {
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-fast) var(--ease);
+}
+
+.btn-primary {
+  background-color: var(--color-primary-600);
+  color: var(--color-white);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  border: 1px solid var(--color-slate-200);
+  background-color: var(--color-white);
+  color: var(--color-slate-700);
+}
+
+@media (hover: hover) {
+  .btn-primary:hover { background-color: var(--color-primary-700); }
+  .btn-secondary:hover { background-color: var(--color-slate-50); }
+}
+
+.btn-primary:active, .btn-secondary:active { scale: .95; }
+
+.spin { animation: spin 1s linear infinite; }
+.pulse { animation: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 50% { opacity: .5; } }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background-color: transparent; }
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-slate-200);
+  border-radius: var(--radius-full);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+@media (hover: hover) {
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--color-slate-300); }
+}

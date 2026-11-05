@@ -25,11 +25,37 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+Engine tests (`tests/engine/`, no Ollama needed: the LLM client is faked), from the repo root with the venv active and `pip install -r engine/requirements-dev.txt`:
+```bash
+python -W "ignore:builtin type:DeprecationWarning" -m pytest tests/engine --cov=engine --cov-branch --cov-fail-under=90
+```
+The `-W` filter hides only PyMuPDF's SWIG import warnings.
+
 Test the Python engine directly (no Electron needed — requires `ollama serve` running):
 ```bash
 cd engine && source venv/bin/activate
 python -m engine.processor --input ../test_input --output ../test_output
 ```
+
+### Checks
+
+```bash
+npm run typecheck       # tsc --noEmit
+npm run test:coverage   # site tests, coverage floor lines 90, branches 85, functions 80
+```
+
+The `test` job of `.github/workflows/release.yml` runs both plus the engine tests (floor 90) before any installer is built. `.github/workflows/site.yml` runs `test:coverage` before the Netlify deploy. Coverage thresholds stay near the measured values, never below 80.
+
+### Styles
+
+- No Tailwind: plain CSS with custom properties.
+- App (`src/`):
+  - `src/styles/tokens.css`: custom properties only (colours, spacing, radii, type scale, shadows, motion).
+  - `src/styles/global.css`: reset, base elements, shared utilities (`.glass`, `.btn-primary`, `.btn-secondary`, `.spin`, `.pulse`).
+  - Both imported once by `src/main.tsx`, before `App`, so component CSS wins ties.
+  - Component styles: a `.css` next to each component, imported by it (`src/App.css`).
+- Site (`site/`): `site/styles/tokens.css` plus `site/styles/global.css` (fonts, base, page blocks, reduced motion), linked root-absolute from `site/index.html`.
+- App and site keep separate tokens: different palettes and fonts, and Netlify publishes only `site/`, so the app's files are not reachable there.
 
 ### Build
 
@@ -54,18 +80,19 @@ No manual tags: every push to `main` runs `.github/workflows/release.yml` (excep
 ## Logo and landing page
 
 - Logo source: `public/logo.svg` (dark variant `public/logo-dark.svg` for the README). `public/icon.png` (1024px, app and installer icon) is rendered from it; `site/logo.svg` is a copy for the landing page. Change the SVG, then regenerate the other two.
+- Icons: Lucide, stroke 2 (`lucide-react` in the app, SVGs copied inline from lucide.dev in `site/`).
 - Landing page: plain files in `site/` (HTML, CSS, JS, self-hosted Work Sans in `site/fonts/`), deployed to Netlify from `netlify.toml` by the `deploy` job of `.github/workflows/site.yml`, after the tests.
 - Its copy is Italian at `/`, with an English page at `/en/` (same mechanism as Gittalo):
   - Every translatable element carries its English in `data-en` (inner HTML) or `data-en-<attribute>` (any attribute, e.g. `aria-label`, `alt`, `content`, `href`).
   - `site/en/index.html` is generated, never edited: `node scripts/site-en.mjs` (the Netlify build command) applies the English and translates the JSON-LD. It is gitignored, so run the script to preview `/en/` locally. JSON-LD text with no copy on the page goes in `LD_EN` in that script; the build fails on a missing one.
-  - The IT/EN switch is a plain link between the two URLs, with hreflang in the `<head>` and in `site/sitemap.xml`. Asset paths stay root-absolute (`/style.css`) so they load from `/en/` too. `tests/site-en.test.mjs` checks all of this.
+  - The IT/EN switch is a plain link between the two URLs, with hreflang in the `<head>` and in `site/sitemap.xml`. Asset paths stay root-absolute (`/styles/global.css`) so they load from `/en/` too. `tests/site-en.test.mjs` checks all of this.
   - `/` follows the browser language: `netlify/edge-functions/language.mjs` redirects to `/en/` (302) when the first supported language in `Accept-Language` is English or none is supported. No header (crawlers) or a same-site `Referer` (a click on the IT/EN switch) keeps `/`. `tests/language.test.mjs` checks it.
   - New copy needs its `data-en` too: `tests/site.test.mjs` fails on visible text without one. The Italian sample documents in the demos carry `lang="it"` and stay Italian.
 - SEO/GEO files: `site/robots.txt`, `site/sitemap.xml` (update `lastmod` when the page changes), `site/llms.txt`, the JSON-LD in the `<head>` (its FAQPage mirrors the FAQ) and `site/og-image.jpg` (a 1200x630 screenshot of the hero).
 - `site/og-image-en.jpg` is the same screenshot of `/en/`, taken at 1440x756 and scaled to 1200x630 so the English title stays on two lines. The `/en/` meta tags and JSON-LD `image` / `screenshot` point to it through `data-en-content`.
 - The CSP in `netlify.toml` has no `'unsafe-inline'`: no inline `style` attributes, and the one inline script is allowed by its hash (recompute it if that line changes).
 - The archive photos in `site/assets/` are CC BY-SA 4.0: the credit line in the footer must stay (sources in `site/assets/credits.json`).
-- Contact form: a `<dialog>` in `site/index.html` posting to `netlify/functions/contact.mjs` (Resend, env vars in `.env.example`), ported from Gittalo. `@netlify/blobs` is a devDependency on purpose: Netlify bundles it into the function, and electron-builder leaves it out of the installers. Tests: `npm run test:site`.
+- Contact form: a `<dialog>` in `site/index.html` posting to `netlify/functions/contact.mjs` (Resend, env vars in `.env.example`), ported from Gittalo. `@netlify/blobs` is a devDependency on purpose: Netlify bundles it into the function, and electron-builder leaves it out of the installers. Tests: `npm run test:site` (`npm run test:coverage` with the floor).
 - Analytics: just-analytics, with the site UUID chosen in advance and set in `site/index.html` (`data-website-id`).
 
 ## Architecture

@@ -60,7 +60,7 @@ Processing speed depends on your CPU: expect roughly a few seconds per page on a
 ## 🏗️ Architecture
 
 The app uses a hybrid architecture to ensure cross-platform compatibility:
-1.  **Frontend**: React 19 + Tailwind CSS 4.
+1.  **Frontend**: React 19 + plain CSS with custom properties.
 2.  **Shell**: Electron 45 — also manages a local **Ollama** sidecar process for AI inference.
 3.  **Engine**: A Python 3 sidecar process that extracts text from documents and calls the local AI model to find sensitive data.
 
@@ -101,6 +101,15 @@ If you want to contribute or build the app yourself, follow these steps:
     ```
     The app spawns `ollama serve` automatically if it's not already running.
 
+### Checks
+- `npm run typecheck`: TypeScript, `tsc --noEmit`.
+- `npm run test:coverage`: site tests with the coverage floor (lines 90%, branches 85%, functions 80%).
+- Engine tests, from the repo root with the venv active and `engine/requirements-dev.txt` installed:
+    ```bash
+    python -W "ignore:builtin type:DeprecationWarning" -m pytest tests/engine --cov=engine --cov-branch --cov-fail-under=90
+    ```
+- CI runs all three before building the installers.
+
 ### Landing page
 - Plain files in `site/`, deployed to Netlify (`netlify.toml`) by the `deploy` job of `.github/workflows/site.yml`, after the tests. Rollback: Actions → Rollback → Run workflow (empty = the previous production deploy).
 - The only build step is `node scripts/site-en.mjs`, which generates `site/en/index.html` from `site/index.html`.
@@ -113,7 +122,7 @@ If you want to contribute or build the app yourself, follow these steps:
 - "Contatti" opens a form that posts to `netlify/functions/contact.mjs`, which mails the message with Resend.
 - Limits: 3 messages per IP in 10 minutes (in memory) and 30 per day overall (a counter in Netlify Blobs, no personal data).
 - Netlify env vars: `RESEND_API_KEY`, `CONTACT_TO`, `CONTACT_FROM` (see `.env.example`).
-- Tests: `npm run test:site`.
+- Tests: `npm run test:site` (`npm run test:coverage` with the coverage floor).
 
 ## 📄 License
 

@@ -39,3 +39,6 @@ test_output/
 
 # taste-skill working files
 .taste-skill/
+
+# pytest-cov data file
+.coverage
