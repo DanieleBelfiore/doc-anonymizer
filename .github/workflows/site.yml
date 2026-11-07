@@ -60,6 +60,17 @@ jobs:
       - run: npm ci
       - run: npm install -g --ignore-scripts netlify-cli@27.16.2
       - run: netlify build --offline --context production
+      # Every name in .env.example must exist on the Netlify site, not left at the DA_SOSTITUIRE placeholder (values never printed).
+      - name: Check Netlify env vars
+        run: |
+          netlify env:list --json --context production --site "$NETLIFY_SITE_ID" \
+            | jq -r 'to_entries[] | select(.value != "DA_SOSTITUIRE") | .key' | sort > "$RUNNER_TEMP/env-present"
+          missing=$(grep -oE '^[A-Z][A-Z0-9_]*' .env.example | sort -u | comm -23 - "$RUNNER_TEMP/env-present")
+          for name in $missing; do echo "::error::$name is missing on Netlify or still DA_SOSTITUIRE"; done
+          test -z "$missing"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
       - run: netlify deploy --prod --no-build --message "${GITHUB_SHA::7} via GitHub Actions"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
