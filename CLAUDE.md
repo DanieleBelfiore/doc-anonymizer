@@ -77,6 +77,12 @@ and copy an `ollama` binary into `resources/bin/` yourself (e.g. `cp $(which oll
 
 No manual tags: every push to `main` runs `.github/workflows/release.yml` (except pushes that only touch the landing page or Markdown files, see its `paths-ignore`), which computes the next version from the commit prefixes since the last `v*` tag (`.github/scripts/next-version.sh`), builds the installers on all platforms and publishes the release, creating the tag on the built commit. `‼️ BREAKING` bumps major, `📦 NEW` minor, `📖 DOC` / `🤖 TEST` / `🦄 RELEASE` release nothing, anything else bumps patch. `[skip release]` in the newest commit subject postpones the release to the next push. `package.json` stays at `1.0.0`: CI sets the real version before building. Script tests: `bash .github/scripts/next-version.test.sh`.
 
+**The repository must stay public for these builds to stay free.**
+
+- GitHub Actions minutes cost nothing on public repositories. On a private one they come out of the account's 2,000 monthly minutes, with macOS minutes counting 10x and Windows 2x.
+- The release matrix runs Ubuntu, macOS and Windows on every push to `main`.
+- Before making the repository private, warn the owner and propose cutting the cost first: release only on demand (`workflow_dispatch`), or fewer pushes to `main` (a `develop` branch merged by pull request, as in gittalo and buy-the-way).
+
 ## Logo and landing page
 
 - Logo source: `public/logo.svg` (dark variant `public/logo-dark.svg` for the README). `public/icon.png` (1024px, app and installer icon) is rendered from it; `site/logo.svg` is a copy for the landing page. Change the SVG, then regenerate the other two.
