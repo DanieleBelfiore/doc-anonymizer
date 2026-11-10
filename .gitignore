@@ -42,3 +42,6 @@ test_output/
 
 # pytest-cov data file
 .coverage
+
+# Claude Code: personal settings stay local
+.claude/settings.local.json
