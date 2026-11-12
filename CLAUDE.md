@@ -44,7 +44,7 @@ npm run typecheck       # tsc --noEmit
 npm run test:coverage   # site tests, coverage floor lines 90, branches 85, functions 80
 ```
 
-The `test` job of `.github/workflows/release.yml` runs both plus the engine tests (floor 90) before any installer is built. `.github/workflows/site.yml` runs `test:coverage` before the Netlify deploy. Coverage thresholds stay near the measured values, never below 80.
+The `test` job of `.github/workflows/release.yml` runs both plus the engine tests (floor 90) before any installer is built. `.github/workflows/site.yml` runs `test:coverage` on the pull request; the merge to `main` deploys to Netlify without running it again. Coverage thresholds stay near the measured values, never below 80.
 
 ### Styles
 
@@ -94,7 +94,7 @@ No manual tags: every push to `main` runs `.github/workflows/release.yml` (excep
 
 - Logo source: `public/logo.svg` (dark variant `public/logo-dark.svg` for the README). `public/icon.png` (1024px, app and installer icon) is rendered from it; `site/logo.svg` is a copy for the landing page. Change the SVG, then regenerate the other two.
 - Icons: Lucide, stroke 2 (`lucide-react` in the app, SVGs copied inline from lucide.dev in `site/`).
-- Landing page: plain files in `site/` (HTML, CSS, JS, self-hosted Work Sans in `site/fonts/`), deployed to Netlify from `netlify.toml` by the `deploy` job of `.github/workflows/site.yml`, after the tests.
+- Landing page: plain files in `site/` (HTML, CSS, JS, self-hosted Work Sans in `site/fonts/`), deployed to Netlify from `netlify.toml` by the `deploy` job of `.github/workflows/site.yml`, after the tests passed on the pull request.
 - Its copy is Italian at `/`, with an English page at `/en/` (same mechanism as Gittalo):
   - Every translatable element carries its English in `data-en` (inner HTML) or `data-en-<attribute>` (any attribute, e.g. `aria-label`, `alt`, `content`, `href`).
   - `site/en/index.html` is generated, never edited: `node scripts/site-en.mjs` (the Netlify build command) applies the English and translates the JSON-LD. It is gitignored, so run the script to preview `/en/` locally. JSON-LD text with no copy on the page goes in `LD_EN` in that script; the build fails on a missing one.
