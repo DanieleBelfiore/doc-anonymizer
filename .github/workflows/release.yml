@@ -38,6 +38,7 @@ jobs:
   version:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       version: ${{ steps.next.outputs.version }}
     steps:
@@ -62,6 +63,7 @@ jobs:
   test:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       ELECTRON_SKIP_BINARY_DOWNLOAD: 1
     steps:
@@ -103,6 +105,7 @@ jobs:
       && needs.version.outputs.version != ''
       && (needs.test.result == 'success' || needs.test.result == 'skipped')
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
 
     strategy:
       matrix:
@@ -194,7 +197,7 @@ jobs:
           set -euo pipefail
           sudo apt-get install -y zstd
           mkdir -p resources/bin _ollama_staging
-          curl -fsSL -o /tmp/ollama.tar.zst \
+          curl --max-time 600 -fsSL -o /tmp/ollama.tar.zst \
             "https://github.com/ollama/ollama/releases/download/v${OLLAMA_VERSION}/ollama-linux-amd64.tar.zst"
           tar --zstd -xf /tmp/ollama.tar.zst -C _ollama_staging
           # Drop GPU vendor backends we don't ship — CPU-only inference is the
@@ -216,7 +219,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p resources/bin
-          curl -fsSL -o /tmp/ollama.tgz \
+          curl --max-time 600 -fsSL -o /tmp/ollama.tgz \
             "https://github.com/ollama/ollama/releases/download/v${OLLAMA_VERSION}/ollama-darwin.tgz"
           tar -xzf /tmp/ollama.tgz -C resources/bin
           chmod +x resources/bin/ollama
@@ -251,7 +254,7 @@ jobs:
           SIDECAR_PID=$!
           ok=""
           for _ in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+            if curl --max-time 2 -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
               ok=1
               break
             fi
@@ -294,6 +297,7 @@ jobs:
   release:
     needs: [version, build]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:

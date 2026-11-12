@@ -29,15 +29,15 @@ jobs:
           auth="Authorization: Bearer $NETLIFY_AUTH_TOKEN"
           target=$DEPLOY_ID
           if [ -z "$target" ]; then
-            live=$(curl -fsS -H "$auth" "$api/sites/$NETLIFY_SITE_ID" | jq -r .published_deploy.id)
-            target=$(curl -fsS -H "$auth" "$api/sites/$NETLIFY_SITE_ID/deploys?production=true&state=ready&per_page=100" \
+            live=$(curl --max-time 30 -fsS -H "$auth" "$api/sites/$NETLIFY_SITE_ID" | jq -r .published_deploy.id)
+            target=$(curl --max-time 30 -fsS -H "$auth" "$api/sites/$NETLIFY_SITE_ID/deploys?production=true&state=ready&per_page=100" \
               | jq -r --arg live "$live" 'map(.id) | (index($live) // empty) as $i | .[$i + 1] // empty')
           fi
           if ! [[ "$target" =~ ^[0-9a-f]{24}$ ]]; then
             echo "::error::No deploy to publish (input: '$DEPLOY_ID')"
             exit 1
           fi
-          curl -fsS -X POST -H "$auth" "$api/sites/$NETLIFY_SITE_ID/deploys/$target/restore" \
+          curl --max-time 30 -fsS -X POST -H "$auth" "$api/sites/$NETLIFY_SITE_ID/deploys/$target/restore" \
             | jq -r '"Published again \(.id) from \(.created_at): \(.title // "" | split("\n")[0])"'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
